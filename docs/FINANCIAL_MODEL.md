@@ -2,7 +2,7 @@
 
 ## Stage 2 scope
 
-TermShift Stage 2 defines serializable inputs for later financial contract experiments. It includes Contract v1, three financial rule structures, Scenario v1, runtime validation, and three synthetic experiment fixtures. These modules contain data and validation only. They do not calculate fees, compare outcomes, discover counterexamples, or provide analysis results.
+TermShift Stage 2 defines serializable inputs for financial contract experiments. It includes Contract v1, three financial rule structures, Scenario v1, runtime validation, and three synthetic experiment fixtures. These model modules contain data and validation only. Stage 3 consumes them through a separate calculation engine without changing their v1 formats; see [CALCULATION_ENGINE.md](CALCULATION_ENGINE.md) for evaluation, comparison, and trace semantics. Automatic counterexample discovery remains future work.
 
 The public API is exported from `src/models/index.ts`. `ContractSchema` and `ScenarioSchema` validate the complete v1 inputs; `Contract` and `Scenario` are the corresponding inferred TypeScript types. The entry point also exports the primitive schemas, `WaiverSchema`, the three rule schemas, `FinancialRulesSchema`, `TransactionSchema`, and `PaymentEventSchema` for direct validation of individual structures. Schemas and types are independent of React and browser APIs. Zod is the runtime validation dependency; TypeScript types alone do not validate external data.
 
@@ -23,11 +23,11 @@ Every model object is strict, including nested rule, waiver, transaction, and pa
 | Calendar date | Exact `YYYY-MM-DD` format with Gregorian year 0001–9999 and a real month/day combination. |
 | Billing month | Exact `YYYY-MM` format with year 0001–9999 and month 01–12. |
 
-All numeric fields reject `NaN`, positive or negative infinity, decimals, and unsafe integers. No field represents a floating-point monetary result. All future calculations need their own checked arithmetic and rounding policies; accepting safe inputs does not prove a later sum or product will be safe.
+All numeric fields reject `NaN`, positive or negative infinity, decimals, and unsafe integers. No field represents a floating-point monetary result. Calculations need their own checked arithmetic and rounding policies; accepting safe inputs does not prove a sum or product will be safe. The separate Stage 3 engine uses exact internal `bigint` arithmetic and checked JSON-safe output numbers.
 
 USD is the only supported currency in v1. One USD equals 100 cents. Future currencies must specify their own minimum-unit scale; this model does not assume every currency has two decimal places.
 
-Calendar validity is checked using explicit Gregorian arithmetic, including the century leap-year rule. For example, `2024-02-29` and `2000-02-29` are valid, while `2026-02-30`, `1900-02-29`, and `0000-01-01` are invalid. Validation does not use JavaScript `Date` rollover to repair an invalid input. Dates have no time, offset, or timezone component. Later calculations will compare calendar days rather than timestamps.
+Calendar validity is checked using explicit Gregorian arithmetic, including the century leap-year rule. For example, `2024-02-29` and `2000-02-29` are valid, while `2026-02-30`, `1900-02-29`, and `0000-01-01` are invalid. Validation does not use JavaScript `Date` rollover to repair an invalid input. Dates have no time, offset, or timezone component. The separate calculation engine compares calendar-day ordinals rather than timestamps.
 
 ## Contract v1
 
@@ -55,7 +55,7 @@ The rule keys are optional individually, so a contract may enable one, two, or a
 
 The waiver has exactly one of the following forms:
 
-| `waiver.kind` | `waiver.threshold` | Intended later meaning |
+| `waiver.kind` | `waiver.threshold` | Meaning when evaluated |
 | --- | --- | --- |
 | `"minTransactionCount"` | Positive safe integer purchase count. | At least this many purchase transactions in the billing month. |
 | `"minPurchaseTotalCents"` | Positive safe integer USD cents. | At least this total purchase amount in the billing month. |
@@ -69,7 +69,7 @@ The waiver has exactly one of the following forms:
 | `fixedCents` | Required nonnegative safe integer USD cents. |
 | `rateBps` | Required integer rate from 0 through 10,000 basis points. |
 
-For context, 100 basis points expresses 1 percent and 60 basis points expresses 0.60 percent. These are rate descriptions, not calculated fees. How a future engine combines rates, fixed amounts, and rounding belongs to a later stage.
+For context, 100 basis points expresses 1 percent and 60 basis points expresses 0.60 percent. These are rate descriptions, not calculated fees. The separate Stage 3 engine rounds each purchase's proportional fee half up before adding the fixed fee, as specified in [CALCULATION_ENGINE.md](CALCULATION_ENGINE.md).
 
 ### Late fee
 
@@ -168,10 +168,10 @@ All three scenarios use `billingMonth: "2026-05"`. Old contracts have `effective
 | The Microtransaction Penalty | Transaction fixed fee 0 cents; rate 100 basis points. | Transaction fixed fee 20 cents; rate 60 basis points. | Ten May purchases, each 100 cents; no payment events. |
 | The Grace Period Shift | Late fee 1,500 cents; grace period 3 calendar days. | Late fee 1,500 cents; grace period 1 calendar day. | No purchase transactions; one completed payment due `2026-05-15`, paid `2026-05-17`, amount 10,000 cents. |
 
-The Grace Period Shift payment amount is an explicit fictional fixture value, not a computed balance. Every experiment's old contract, new contract, and scenario is validated in runtime tests. The fixture names do not claim which contract is preferable, whether a fee is incurred, or the magnitude of any impact. Those questions require a later calculation engine.
+The Grace Period Shift payment amount is an explicit fictional fixture value, not a computed balance. Every experiment's old contract, new contract, and scenario is validated in runtime tests. The fixture names do not claim which real contract is preferable. Stage 3 evaluates the formal fixture inputs and verifies their precise synthetic outcomes in tests; those calculations and their limitations are documented in [CALCULATION_ENGINE.md](CALCULATION_ENGINE.md).
 
 ## Version boundaries and future work
 
 Contract v1 and Scenario v1 accept only their specified structures. Supporting a new currency, transaction kind, payment state, billing cycle, or financial rule requires an explicit model change and validation decisions. Older payloads are not silently upgraded.
 
-Later stages can consume validated data through the public model entry point. They must separately define fee evaluation, safe arithmetic, rounding, date comparisons, comparison traces, and bounded scenario search. Stage 2 creates no engine, extension framework, mock API, backend, database, or deployment workflow.
+The Stage 3 engine consumes validated data through the public model entry point and separately defines fee evaluation, safe arithmetic, rounding, date comparisons, and calculation/comparison traces. Stage 2's input formats remain unchanged. Bounded scenario generation/search and product interfaces belong to later stages. No extension framework, mock API, backend, database, or deployment workflow is introduced.

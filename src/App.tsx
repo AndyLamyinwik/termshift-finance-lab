@@ -107,10 +107,10 @@ function App() {
               An explainable financial contract simulation and counterexample discovery engine.
             </p>
             <div className="foundation-note">
-              <span className="foundation-number" aria-hidden="true">01</span>
+              <span className="foundation-number" aria-hidden="true">03</span>
               <div>
-                <span className="foundation-label">The foundation is taking shape</span>
-                <p>Stage 1 establishes the project. Financial simulation and analysis are planned for future stages.</p>
+                <span className="foundation-label">The calculation foundation is ready</span>
+                <p>Stage 3 provides a tested local calculation engine. Interactive analysis is planned for future stages.</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ function App() {
               </div>
             </div>
             <p className="workflow-footnote">
-              A conceptual preview of future modules.<br />No financial calculations are available yet.
+              A conceptual preview of future modules.<br />Interactive calculations are not available here yet.
             </p>
           </aside>
         </section>
@@ -186,7 +186,7 @@ function App() {
 
       <footer className="site-footer">
         <span>TermShift <span className="footer-divider" aria-hidden="true">/</span> Financial Contract Counterexample Lab</span>
-        <span className="footer-stage">Stage 1 · Project foundation</span>
+        <span className="footer-stage">Stage 3 · Financial calculation engine</span>
       </footer>
     </div>
   )

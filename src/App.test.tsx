@@ -28,7 +28,7 @@ describe('Stage 1 project overview', () => {
       expect(cards[index]).toContain(`<h3>${name}</h3>`)
       expect(cards[index]).toContain('Planned module')
     }
-    expect(html).toContain('No financial calculations are available yet.')
+    expect(html).toContain('Interactive calculations are not available here yet.')
     expect(html).not.toMatch(/<(button|input|form|select|textarea)\b/)
   })
 })

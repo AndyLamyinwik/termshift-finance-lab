@@ -6,7 +6,9 @@ TermShift starts as a single React application written in strict TypeScript and 
 
 Stage 2 adds Contract v1 and Scenario v1 data models, financial rule types, Zod runtime validation, three synthetic experiment fixtures, and executable validation tests. It preserves the homepage and existing engineering configuration. The data model is independent of React and can be imported in a Node.js test environment.
 
-The Financial Diff, Counterexample Hunter, and Proof of Impact modules are described on the homepage but are not implemented. The application does not simulate contracts, calculate financial outcomes, compare rules, search for counterexamples, or display sample analysis results. Stage 2 does not add a financial engine or new UI.
+Stage 3 adds a pure TypeScript calculation engine that evaluates the three supported fee rules and compares outcomes for two contracts under the same scenario. It returns structured calculation traces and deterministic validation or overflow failures. No Stage 2 input schema changes or new dependencies are required.
+
+The homepage remains an informational project overview. Full Financial Diff, Counterexample Hunter, and Proof of Impact interfaces are future work. Stage 3 does not add structural rule comparison, automatic counterexample searches, a dashboard, or interactive financial tools.
 
 ## Static frontend
 
@@ -44,7 +46,7 @@ Contract v1 supports USD, calendar-month billing, and three optional named rules
 
 Scenario v1 contains a billing month, purchase transactions, and completed payment events. Transactions must occur in that month. Payment due dates and paid dates may fall outside it, and early payment is valid. A payment record does not model an unpaid balance, partial repayment, a minimum payment, interest, or compounding.
 
-All nested model objects reject unknown fields. Validation performs no implicit conversion or date repair. Calendar fields use Gregorian year, month, and day arithmetic, with years from 0001 through 9999, instead of JavaScript `Date` normalization. Later engines must compare calendar days rather than timestamps or local-time instants. Contract `effectiveDate` describes its version and is not an eligibility check against a scenario; counterfactual experiments may pair a contract with an earlier scenario.
+All nested model objects reject unknown fields. Validation performs no implicit conversion or date repair. Calendar fields use Gregorian year, month, and day arithmetic, with years from 0001 through 9999, instead of JavaScript `Date` normalization. The engine compares calendar-day ordinals rather than timestamps or local-time instants. Contract `effectiveDate` describes its version and is not an eligibility check against a scenario; counterfactual experiments may pair a contract with an earlier scenario.
 
 Scenario input limits are 10,000 transactions and 1,000 payment events. Empty arrays are valid. Inputs exceeding these limits are rejected before their elements are parsed. IDs are unique within each collection; an ID can appear once in each collection because transaction and payment IDs occupy separate namespaces.
 
@@ -52,24 +54,41 @@ Scenario input limits are 10,000 transactions and 1,000 payment events. Empty ar
 
 `src/scenarios/` holds explicit, synthetic data for the three named experiments. Fixtures contain an old contract, a new contract, a scenario, and descriptive text. They contain no computed fee totals, comparisons, winners, or impact results. Their data is validated by the same public validators available to future consumers.
 
-The detailed contract is documented in [FINANCIAL_MODEL.md](FINANCIAL_MODEL.md).
+The detailed input contract is documented in [FINANCIAL_MODEL.md](FINANCIAL_MODEL.md).
 
-## Planned rules engine boundaries
+## Calculation engine and future boundaries
 
-The types, input validation, and fixed synthetic scenarios are implemented in Stage 2. The remaining boundaries describe future work and do not require placeholder engines, a plugin system, or extra dependencies now.
+`src/engine/index.ts` exposes `evaluateContract`, `compareContracts`, and their result/trace types. Both APIs accept `unknown`, validate through the Stage 2 `validateContract` and `validateScenario` functions, and return a discriminated success/failure result. A comparison validates one scenario for both contracts and either returns both complete evaluations and their deltas or a failure with no partial output. Inputs are not mutated.
+
+The engine has small modules with specific responsibilities:
+
+| Module | Responsibility |
+| --- | --- |
+| `types.ts` | Define JSON-safe evaluations, comparison deltas, discriminated calculation traces, and structured engine issues. |
+| `money.ts` | Perform exact internal `bigint` arithmetic, rational half-up rounding, and checked conversion to safe integer numbers. |
+| `dates.ts` | Convert validated Gregorian dates to calendar-day ordinals and calculate signed day differences without timestamps or timezones. |
+| `evaluate.ts` | Validate unknown inputs, clamp early-payment day differences to zero, assess enabled fee rules, build ordered traces, and produce checked category/grand totals. |
+| `compare.ts` | Evaluate old and new contracts for the same scenario and calculate signed new-minus-old deltas. |
+| `index.ts` | Provide the public calculation entry point. |
+
+Trace order is enabled monthly fee first, then enabled transaction fees in scenario transaction order, then enabled late fees in payment-event order. Assessed zero charges remain in the trace, including waived monthly fees and on-time payments. Missing rules contribute zero category totals and no trace entries. The traces preserve numerical inputs and decisions so a future presentation layer can explain the computed result without reimplementing the rules.
+
+The completed-payment late fee is a synthetic per-event assessment. It does not represent the account-level late fees commonly used by real credit cards, a balance ledger, partial repayments, interest, or bank regulatory rules. Payment amounts are validated input metadata and do not change a late fee in this model.
+
+The wider module boundaries distinguish implemented foundations from future product work:
 
 | Boundary | Responsibility |
 | --- | --- |
-| Types | Define contracts, supported rules, scenarios, and monetary values; later add outcomes and calculation traces. |
+| Types | Define contracts, supported rules, scenarios, monetary values, outcomes, and calculation traces. |
 | Validation | Check input shape, supported rules, currencies, numerical ranges, and scenario constraints before calculation. |
 | Money | Handle integer minimum currency units, checked arithmetic, rate representations, and explicit rounding policies. |
 | Engine | Evaluate a validated contract against an explicit scenario and return its outcome and trace. |
-| Scenarios | Represent and generate bounded, reproducible input scenarios for evaluation. |
-| Diff | Compare outcomes and traces from two contracts evaluated against the same scenario. |
-| Counterexamples | Search a declared scenario space for inputs that satisfy a stated difference predicate. |
-| Explanations | Turn calculation traces and comparisons into evidence for Proof of Impact. |
+| Scenarios | Represent bounded, reproducible inputs and fixed synthetic fixtures; scenario generation remains future work. |
+| Diff | Compare category and total outcomes for the same scenario; structural rule comparison and a product interface remain future work. |
+| Counterexamples | Future: search a declared scenario space for inputs that satisfy a stated difference predicate. |
+| Explanations | Structured calculation traces are implemented; a future layer will present that evidence as Proof of Impact. |
 
-The rules engine should be independent of React and browser presentation. Its core functions should be pure and deterministic: the same validated contract, scenario, and calculation policy must yield the same result. Inputs such as evaluation dates and search parameters should be explicit rather than read implicitly from the system clock or an external service.
+The rules engine is independent of React and browser presentation. Its core functions are pure and deterministic: the same contract and scenario yield the same result. Evaluation uses only explicit input dates. Future search parameters should likewise be explicit rather than read implicitly from the system clock or an external service.
 
 Presentation components will collect inputs and render validated results. They should not contain financial rule logic. The engine should return structured traces that preserve the rules and intermediate values used in a calculation; the explanation layer should describe that evidence without inventing unsupported conclusions.
 
@@ -81,15 +100,19 @@ Contract v1 supports only USD. Amount fields ending in `Cents` store USD cents a
 
 Future currency support must represent amounts in each currency's minimum unit. The scale belongs to the currency definition; it must not assume that every currency has two decimal places. USD's current cents representation is an explicit v1 restriction, not a general currency model.
 
-Validation enforces safe integer input ranges and rejects decimals, `NaN`, `Infinity`, and out-of-range numbers. Stage 2 does not implement monetary arithmetic or publish calculation results. A later engine must use checked arithmetic to reject results outside the safe integer range even when each individual input is valid. A later design may select `bigint` where required, with an explicit serialization strategy.
+Validation enforces safe integer input ranges and rejects decimals, `NaN`, `Infinity`, and out-of-range numbers. Stage 3 uses internal `bigint` sums, products, division, and subtraction. It converts monetary results to numbers only after checking `Number.MAX_SAFE_INTEGER`, including trace purchase totals, individual charges, category totals, and the grand total. Comparison deltas are checked against the signed safe integer range. Overflow returns a structured failure instead of a truncated value or partial result. No `bigint` is exposed in public JSON results.
 
-Rates, fractions, division, and conversions require an explicit representation and rounding policy. Each rule must specify when rounding happens and which mode applies. Formatting amounts for display must not alter the values used by the engine. Binary floating-point decimal arithmetic must not silently determine monetary outcomes.
+Each transaction's proportional fee is `roundHalfUp(amountCents × rateBps / 10000)`, calculated as an exact nonnegative rational value. Half-cent ties round up. The fixed fee is added after that rounding, then per-transaction charges are summed. Rounding a combined purchase total is a different policy and is not used. Formatting amounts for display must not alter the values used by the engine.
+
+See [CALCULATION_ENGINE.md](CALCULATION_ENGINE.md) for formulas, the Gregorian ordinal algorithm, public result structures, trace fields, failure paths, and worked fixture calculations.
 
 ## Quality checks
 
 The local development baseline is Node.js 24 LTS and npm. TypeScript strict mode, ESLint, and Vitest provide separate checks for type correctness, code quality, and executable behavior.
 
 Zod is the only runtime dependency added for Stage 2. Runtime tests verify the real validators, including fixtures, invalid amounts, calendar edge cases, rule structures, strict keys, array bounds, duplicate IDs, early and cross-month payments, JSON round trips, and determinism.
+
+Stage 3 adds no dependencies. Its Node.js unit tests exercise the formal fixtures and readable financial boundaries: waiver thresholds, per-transaction half-cent rounding, combined rules, absent rules, Gregorian date boundaries, overflow, validation failures, negative/zero comparisons, input immutability, JSON round trips, trace sums, and category-delta sums. The Stage 1 and Stage 2 suites remain in place.
 
 GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
