@@ -4,9 +4,9 @@
 
 TermShift is an explainable financial contract simulation and counterexample discovery engine. It aims to help people compare contract rules, discover scenarios where their outcomes differ, and understand the impact of those differences.
 
-**Project in Development — Stage 1: Project Foundation**
+**Project in Development — Stage 2: Financial Contract Data Model**
 
-This repository currently contains the frontend foundation and a responsive project overview. Financial calculations, contract simulation, and analysis results are not implemented yet.
+This repository contains the frontend foundation, a responsive project overview, and validated financial contract and scenario data models. Financial calculations, contract simulation, comparisons, counterexample searches, and analysis results are not implemented yet.
 
 ## Technology
 
@@ -16,6 +16,7 @@ This repository currently contains the frontend foundation and a responsive proj
 - Vitest for automated tests
 - ESLint for code quality
 - GitHub Actions for continuous integration
+- Zod for runtime validation of contract and scenario inputs
 
 The application is a single static frontend. It has no backend, database, authentication, or runtime third-party API calls. Future financial calculations will run locally in the browser. The interface uses local CSS and does not load remote fonts, images, or CDN assets.
 
@@ -53,16 +54,23 @@ npm test
 npm run build
 ```
 
-The CI workflow runs this verification sequence on pushes and pull requests. Stage 1 does not include a deployment workflow.
+The CI workflow runs this verification sequence on pushes and pull requests. The repository does not include a deployment workflow.
 
 ## Current scope
 
 - A React, TypeScript, and Vite application foundation.
 - A responsive dark homepage with the TermShift name, product introduction, module descriptions, and a visible development status.
-- A basic executable test suite, linting, type checking, and build scripts.
+- React-independent Contract v1 and Scenario v1 schemas with strict runtime validation and structured errors for unknown inputs.
+- Monthly fee, transaction fee, and late fee rule data types, restricted to USD cents and integer basis points.
+- Three complete synthetic experiments: The Waiver Trap, The Microtransaction Penalty, and The Grace Period Shift.
+- Executable homepage and runtime validation tests, linting, type checking, and build scripts.
 - Engineering documentation, an MIT license, and a GitHub Actions CI workflow.
 
 The homepage is informational. It contains no unimplemented analysis controls or fabricated financial results.
+
+The public data model API is exported from `src/models/index.ts`; synthetic fixtures are exported from `src/scenarios/index.ts`. Validation accepts `unknown` and returns either validated data or issues with a field path, code, and message. It checks actual Gregorian calendar dates without JavaScript date normalization, rejects unknown object fields, and bounds scenario inputs to 10,000 transactions and 1,000 payment events. Models and validators run in the Node.js test environment without React, browser APIs, a clock, random values, or network access.
+
+Contract `effectiveDate` is descriptive version metadata. It does not prevent a scenario from being used for a later counterfactual comparison. Stage 2 stores data only; it does not calculate the results of the synthetic experiments.
 
 ## Planned modules
 
@@ -72,9 +80,9 @@ The homepage is informational. It contains no unimplemented analysis controls or
 | Counterexample Hunter | Search explicit scenarios for examples that expose meaningful differences between contracts. |
 | Proof of Impact | Trace the rules and calculations behind a difference so its effect can be explained. |
 
-These modules are design targets for later stages. They are not available in Stage 1. Future monetary calculations will use integer minimum currency units with explicit validation and rounding rules.
+These modules are design targets for later stages and are not available yet. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places. Financial arithmetic, checked result ranges, and rounding policies belong to a later engine stage.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the frontend constraints and planned module boundaries.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for frontend constraints and module boundaries, and [docs/FINANCIAL_MODEL.md](docs/FINANCIAL_MODEL.md) for fields, units, validation requirements, and synthetic experiment data.
 
 ## License
 
