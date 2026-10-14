@@ -2,7 +2,7 @@
 
 Stage 4A adds deterministic, bounded searches for scenarios where two validated contracts produce different fees. It uses the Stage 2 schemas and Stage 3 `compareContracts` API. Every retained witness contains the complete scenario and the actual comparison returned by that engine. Search code does not implement a second fee formula.
 
-The search runs entirely in local TypeScript and can be imported without React, the DOM, a server, or network access. It does not read the current time or use `Math.random`. No dependency is added in this stage. The existing homepage remains informational; no search UI, deployment, PDF output, or Stage 4B minimization is included.
+The search runs entirely in local TypeScript and can be imported without React, the DOM, a server, or network access. It does not read the current time or use `Math.random`. No dependency is added in this stage. The existing homepage remains informational; no search UI, deployment, or PDF output is included. Stage 4B adds a separate witness minimizer and impact-evidence module without changing this search API or its financial formulas.
 
 ## Public API
 
@@ -126,7 +126,9 @@ A witness demonstrates a fee difference for its explicit scenario under the curr
 
 `no-witness-found` means **no witness was found within the specified search range and budget**. It does not establish general contract equivalence. Even complete coverage only describes the simplified generated family, and logged invalid scenarios or engine failures must still be considered. Contract `effectiveDate` remains descriptive and does not block counterfactual comparisons.
 
-Stage 4A retains full discovered scenarios. It does not minimize purchases, payment events, amounts, or explanatory traces. Finding a smallest counterexample belongs to Stage 4B.
+Stage 4A retains full discovered scenarios. Its search API does not minimize purchases, amounts, payment delays, or explanatory traces. Stage 4B consumes a selected witness and its recorded options through `minimizeWitness` and `createImpactProof`; it preserves existing payment obligations, and reports reduction under a finite strategy and budget without claiming a globally smallest counterexample. See [MINIMIZATION_AND_PROOF.md](MINIMIZATION_AND_PROOF.md).
+
+A proof's search options and source metadata make the submitted inputs reproducible. Proof verification checks current financial and reduction consistency, rather than authenticating a past search execution or certifying the search ledger. In particular, `coverage.complete` means all canonical parameter combinations were visited and can include failed date generation or financial comparisons; it never certifies that all those combinations were successfully evaluated.
 
 ## Formal experiment searches
 

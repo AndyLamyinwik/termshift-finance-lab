@@ -10,7 +10,9 @@ Stage 3 adds a pure TypeScript calculation engine that evaluates the three suppo
 
 Stage 4A adds a pure TypeScript, bounded counterexample search over explicit purchase counts, uniform purchase amounts, and a shared delay for existing payment events. Contract-derived boundary candidates and a local seeded PRNG generate scenarios; the unchanged Stage 2 validators and Stage 3 `compareContracts` provide validation and every financial result. It adds no dependencies or changes to existing financial formulas.
 
-The homepage remains an informational project overview. Full Financial Diff, Counterexample Hunter, and Proof of Impact interfaces are future work. Stage 4A does not add structural rule comparison, counterexample minimization, a dashboard, interactive financial tools, deployment, or PDF output.
+Stage 4B adds a bounded, deterministic minimizer for Stage 4A witnesses and a JSON-safe Proof of Impact module. The minimizer verifies the original witness through the existing comparison engine before reducing it. Proof verification recomputes the financial evidence and checks preserved obligations and reduction constraints; Markdown formatting presents that verified data. The financial schemas, formulas, search implementation, formal fixtures, and homepage remain unchanged.
+
+The homepage remains an informational project overview. Full Financial Diff, Counterexample Hunter, and Proof of Impact interfaces are future work. Stage 4B does not add structural rule comparison, a dashboard, interactive financial tools, deployment, PDF output, or Stage 5 functionality.
 
 ## Static frontend
 
@@ -87,8 +89,8 @@ The wider module boundaries distinguish implemented foundations from future prod
 | Engine | Evaluate a validated contract against an explicit scenario and return its outcome and trace. |
 | Scenarios | Represent bounded, reproducible inputs and fixed synthetic fixtures; search generates a declared simplified family without altering those fixtures. |
 | Diff | Compare category and total outcomes for the same scenario; structural rule comparison and a product interface remain future work. |
-| Counterexamples | Search declared bounded scenarios for a nonzero comparison delta and preserve complete engine-computed witnesses; minimization and an interface remain future work. |
-| Explanations | Structured calculation traces are implemented; a future layer will present that evidence as Proof of Impact. |
+| Counterexamples | Search declared bounded scenarios for a nonzero comparison delta, then reduce a verified witness within its bounds while preserving the sign of the difference. A product interface remains future work. |
+| Explanations | Preserve calculation traces and reduction history in verifiable JSON evidence and format readable Markdown; an interactive presentation layer remains future work. |
 
 The rules engine is independent of React and browser presentation. Its core functions are pure and deterministic: the same contract and scenario yield the same result. Evaluation uses only explicit input dates. Search likewise uses explicit bounds and a seed rather than reading the system clock or an external service.
 
@@ -117,7 +119,23 @@ Witnesses contain a complete scenario, the complete Stage 3 comparison, and stab
 
 Coverage is measured only over the uniform-purchase/shared-delay family. A zero count removes the irrelevant amount dimension; an empty payment collection removes the irrelevant delay dimension. A base matching that family can contribute to coverage, while a nonuniform base is only an additional explicit comparison. Complete coverage requires visiting every canonical tuple, including recorded invalid-date attempts; it does not imply that failed candidates were financially evaluated or that unrestricted contracts are equivalent. No witness found means none was found in the stated range and budget.
 
-Stage 4B minimization is outside the current module. See [COUNTEREXAMPLE_SEARCH.md](COUNTEREXAMPLE_SEARCH.md) for precise options, algorithm behavior, report fields, failure interpretation, and reproducible synthetic examples.
+Search and minimization retain separate boundaries. The Stage 4A API still returns complete observed witnesses; Stage 4B explicitly consumes one of those witnesses with its search options. See [COUNTEREXAMPLE_SEARCH.md](COUNTEREXAMPLE_SEARCH.md) for precise options, algorithm behavior, report fields, failure interpretation, and reproducible synthetic examples.
+
+## Counterexample minimization and impact evidence
+
+`src/minimizer/index.ts` exports `minimizeWitness`, the options schema, and typed reduction results. `src/proof/index.ts` exports proof creation, runtime verification, and Markdown formatting. Both modules accept unknown inputs at their public boundaries, work in Node.js without React or the DOM, and depend on the existing formal schemas and `compareContracts`. They do not calculate fees independently.
+
+The minimizer's strict witness schema checks complete scenario and comparison structures. It recomputes the original result and rejects mismatched recorded comparisons, deltas, or zero-delta inputs. Both the original and each candidate must satisfy the Stage 2 Scenario schema, Stage 4A's chosen inclusive count/amount/delay bounds, and the tighter capacity limits of 30 purchases and five payment events. Early payments have effective delay zero and remain unchanged.
+
+Reduction preserves scenario identity, billing month, retained transaction order, IDs, dates, and kinds. Transactions can be deleted or have their amounts lowered. Payment order, count, IDs, due dates, and obligation amounts remain unchanged; a late paid date can only move toward its due date. This can produce nonuniform purchase amounts and separate payment delays, so the reduced scenario need not belong to the search's generated uniform/shared-delay family.
+
+The objective is the lexicographic tuple `(purchaseCount, purchaseTotalCents, totalLateDays)`, where late days are clamped at zero per payment. Each accepted change must strictly improve that tuple, retain a nonzero difference with the original sign, and pass a fresh engine comparison. The fixed strategy tries purchase groups, individual purchases, smaller integer amounts, and lower nonnegative delays. It records accepted before/after scenarios, comparisons, reasons, and validation evidence without mutating input objects.
+
+The default budget is 200 engine comparisons and the hard limit is 300. The original verification and failed comparisons count toward the budget; duplicate candidates do not count again. Budget exhaustion returns the best valid result found so far. A completed strategy means its defined probes found no further improvement. It is not a proof of a global minimum, and the amount probes do not assume monotonic fee differences.
+
+Proof data includes schema and algorithm versions, complete contracts, source metadata, search options and seed, both scenarios and comparisons, reduction steps, the minimization budget, calculation policy, and limitations. The verifier validates the format and input models, recomputes recorded comparisons, enforces direction and range constraints, and checks retained obligations and the objective. Verification establishes consistency of the submitted data under the current algorithms; it does not certify historical search execution, immutable provenance, cryptographic authenticity, or financial regulatory approval.
+
+The formatter verifies a submitted proof before returning Markdown containing actual scenario details, USD totals, signed deltas, category impacts, reductions, reproduction information, and limitations. It introduces no UI or PDF pipeline. See [MINIMIZATION_AND_PROOF.md](MINIMIZATION_AND_PROOF.md) for complete API contracts, serialized fields, failure behavior, and measured synthetic examples.
 
 ## Monetary representation
 
@@ -140,6 +158,8 @@ Zod is the only runtime dependency added for Stage 2. Runtime tests verify the r
 Stage 3 adds no dependencies. Its Node.js unit tests exercise the formal fixtures and readable financial boundaries: waiver thresholds, per-transaction half-cent rounding, combined rules, absent rules, Gregorian date boundaries, overflow, validation failures, negative/zero comparisons, input immutability, JSON round trips, trace sums, and category-delta sums. The Stage 1 and Stage 2 suites remain in place.
 
 Stage 4A preserves all 359 existing tests and adds Node.js search tests for discoveries from zero-delta bases, seeded reproducibility and variation, actual comparison consistency, formal scenario validation, bounds and budgets, deduplication, both delta directions, scoped no-witness results, overflow, calendar generation, immutability, and JSON serialization. It adds no runtime dependency.
+
+Stage 4B preserves all 497 existing tests and adds runtime tests for real searched-witness reduction, positive and negative deltas, nonzero direction preservation, reduced absolute differences, budgets, forged evidence rejection, obligation/date/range invariants, overflow, immutable inputs, deterministic reruns, JSON proof round trips, tamper rejection, and Markdown consistency. It adds no dependency and does not change the existing financial formulas or search API.
 
 GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 

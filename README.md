@@ -4,9 +4,9 @@
 
 TermShift is an explainable financial contract simulation and counterexample discovery engine. It aims to help people compare contract rules, discover scenarios where their outcomes differ, and understand the impact of those differences.
 
-**Project in Development — Stage 4A: Deterministic Counterexample Search**
+**Project in Development — Stage 4B: Counterexample Minimizer & Proof of Impact**
 
-This repository contains the frontend foundation, a responsive project overview, validated financial contract and scenario data models, a deterministic financial calculation engine, and bounded counterexample searches. The calculation engine evaluates explicit synthetic scenarios and returns fee totals and structured traces. The search combines contract-derived boundaries with seeded scenario generation to discover real outcome differences. Counterexample minimization and an interactive analysis interface remain future work.
+This repository contains the frontend foundation, a responsive project overview, validated financial contract and scenario data models, a deterministic financial calculation engine, bounded counterexample searches, witness minimization, and verifiable impact evidence. The calculation engine evaluates explicit synthetic scenarios and returns fee totals and structured traces. The search combines contract-derived boundaries with seeded scenario generation to discover actual outcome differences. The minimizer reduces those witnesses while retaining the direction of their difference; the evidence module packages complete inputs and calculation traces as JSON and readable Markdown. An interactive analysis interface remains future work.
 
 ## Technology
 
@@ -65,7 +65,9 @@ The CI workflow runs this verification sequence on pushes and pull requests. The
 - Three complete synthetic experiments: The Waiver Trap, The Microtransaction Penalty, and The Grace Period Shift.
 - Pure TypeScript evaluation and comparison APIs with exact integer arithmetic, per-transaction half-up rounding, Gregorian calendar-day calculations, structured traces, and explicit validation/overflow failures.
 - A local deterministic search API that starts from an explicit base scenario, explores bounded uniform-purchase/shared-payment-delay scenarios, and retains complete witnesses computed by the existing comparison engine.
-- Executable homepage, runtime validation, calculation, and search tests, linting, type checking, and build scripts.
+- A deterministic, bounded minimizer that validates and recomputes each witness, reduces purchases, amounts, and payment delays, and preserves payment obligations and a nonzero delta with the same sign.
+- JSON-safe Proof of Impact data, runtime proof verification through fresh engine comparisons, and a pure Markdown report formatter.
+- Executable homepage, runtime validation, calculation, search, minimization, and proof tests, linting, type checking, and build scripts.
 - Engineering documentation, an MIT license, and a GitHub Actions CI workflow.
 
 The homepage is informational. It contains no unimplemented analysis controls or fabricated financial results.
@@ -76,7 +78,11 @@ The public calculation API is exported from `src/engine/index.ts`. `evaluateCont
 
 The public search API is exported from `src/search/index.ts`. `searchCounterexamples(oldContractInput, newContractInput, baseScenarioInput, optionsInput)` also accepts `unknown` and returns a validated report or structured issues. Its required options declare a seed, inclusive purchase-count/amount/delay bounds, an evaluation budget, and a witness limit. Search is limited to 30 purchases, five existing payment events, 500 comparisons, and ten retained witnesses; oversized base inputs are rejected without truncation. Every candidate passes the existing Scenario validator before `compareContracts` is called. The report records candidate sources, failures, skips, actual evaluation counts, and coverage of its simplified generated family.
 
-Repeating the same inputs, options, seed, and code revision reproduces candidate order and results. No-witness results mean no difference was found within the declared range and budget. The strongest observed witness is not asserted to be a global maximum, and complete coverage of uniform purchases with a shared payment delay does not establish general contract equivalence. Stage 4A adds no dependencies, runtime network calls, search UI, or minimization algorithm.
+Repeating the same inputs, options, seed, and code revision reproduces candidate order and results. No-witness results mean no difference was found within the declared range and budget. The strongest observed witness is not asserted to be a global maximum. `coverage.complete` means every canonical parameter tuple in the generated family was visited; some visits can fail date generation or financial calculation. It does not establish successful financial evaluation of every tuple or general contract equivalence.
+
+The public minimizer API is exported from `src/minimizer/index.ts`. `minimizeWitness(oldContractInput, newContractInput, witnessInput, searchOptionsInput, minimizationOptionsInput)` accepts unknown inputs and returns validated reduction evidence or structured issues. It first recomputes the recorded witness using `compareContracts`; forged comparisons, mismatched deltas, and zero-delta witnesses fail. It minimizes the lexicographic tuple of purchase count, total purchase cents, and total nonnegative late days, within the original search bounds. Its comparison budget defaults to 200 and cannot exceed 300, including the original comparison and failed candidate calculations. A returned result describes reduction under a finite strategy and budget, without claiming a global minimum.
+
+The public evidence API is exported from `src/proof/index.ts`. `createImpactProof` takes the same inputs as the minimizer, `verifyImpactProof(unknown)` validates a saved proof and recomputes its financial results, and `formatImpactReport(unknown)` returns a verified Markdown report or structured issues. Proofs preserve contracts, search options and seed, witness source, original and reduced scenarios, comparisons, accepted steps, budget, calculation policy, and limitations. Verification checks calculation consistency and reduction invariants; it does not certify past search history or provide a cryptographic signature. Stage 4B adds no dependency, runtime network call, new UI, or PDF output.
 
 Contract `effectiveDate` is descriptive version metadata. It does not prevent a scenario from being used for a counterfactual comparison. Internal `bigint` arithmetic preserves monetary precision, and results outside the safe integer range fail explicitly. The completed-payment late fee is assessed separately for each synthetic payment event; it does not model real account-level bank late fees, balances, partial repayments, interest, or financial regulation.
 
@@ -98,9 +104,9 @@ These are computations over fictional inputs, not real product analyses or finan
 | Counterexample Hunter | Search explicit scenarios for examples that expose meaningful differences between contracts. |
 | Proof of Impact | Trace the rules and calculations behind a difference so its effect can be explained. |
 
-The complete product modules and their interfaces are design targets for later stages. The current core provides outcome comparison, calculation traces, and bounded counterexample discovery. Structural rule diffs, counterexample minimization, and an interactive Proof of Impact view remain future work. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places.
+The complete product modules and their interfaces are design targets for later stages. The current core provides outcome comparison, calculation traces, bounded counterexample discovery, reduction, and verifiable JSON/Markdown evidence. Structural rule diffs and interactive analysis views remain future work. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for frontend constraints and module boundaries, [docs/FINANCIAL_MODEL.md](docs/FINANCIAL_MODEL.md) for input fields and validation requirements, [docs/CALCULATION_ENGINE.md](docs/CALCULATION_ENGINE.md) for formulas and calculation traces, and [docs/COUNTEREXAMPLE_SEARCH.md](docs/COUNTEREXAMPLE_SEARCH.md) for search options, deterministic exploration, coverage limits, result structures, and actual synthetic search examples.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for frontend constraints and module boundaries, [docs/FINANCIAL_MODEL.md](docs/FINANCIAL_MODEL.md) for input fields and validation requirements, [docs/CALCULATION_ENGINE.md](docs/CALCULATION_ENGINE.md) for formulas and calculation traces, [docs/COUNTEREXAMPLE_SEARCH.md](docs/COUNTEREXAMPLE_SEARCH.md) for search options and coverage limits, and [docs/MINIMIZATION_AND_PROOF.md](docs/MINIMIZATION_AND_PROOF.md) for reduction APIs, proof verification, and reproducible synthetic results.
 
 ## License
 
