@@ -22,7 +22,9 @@ Stage 5C-1 adds Proof of Impact Viewer to the same workspace. An explicit Genera
 
 Stage 5C-2 adds portable evidence using the existing Proof Schema and APIs: complete verified JSON downloads, official Markdown reports, and bounded local-file import followed by independent verification. Imported evidence has a separate state boundary inside the same workspace hook and never becomes an applied contract, SearchSnapshot, or fabricated Hunter witness. Current and imported evidence reuse the same proof presentation with explicit labels. No dependency, financial formula, schema, core verifier, or fixture changes.
 
-Structural rule comparison, scenario editing, rule-category additions/removals, PDF generation, deployment, and Release creation remain outside Stage 5C-2. GitHub Pages publishing belongs to Stage 6.
+Stage 6 adds a GitHub Pages delivery workflow for the existing static application. A main-branch push or an explicit manual run verifies the source, builds `dist/`, attaches static commit metadata, and publishes the artifact through official GitHub Pages Actions. The existing CI remains independent. Delivery does not change financial schemas, formulas, search, minimization, verification, fixtures, or runtime dependencies.
+
+Structural rule comparison, scenario editing, rule-category additions/removals, PDF generation, Release creation, and subsequent stages remain outside Stage 6. Public hosting is a preview before a v1.0 release and does not imply financial regulatory certification.
 
 ## Static frontend
 
@@ -38,6 +40,7 @@ The project remains one frontend package; a monorepo, Next.js application, and b
 - No AI, LLM, banking, or financial API integrations.
 - No runtime requests to third-party APIs.
 - No external CDN dependencies, remote fonts, or remote images.
+- No third-party tracking, service worker, PWA, or automatic persistent storage of financial inputs.
 - Financial rules, inputs, simulations, and explanations are processed locally in the browser.
 - Do not fabricate analysis results or present an unimplemented module as operational.
 
@@ -303,10 +306,14 @@ Stage 5C-1 preserves all 945 existing tests and updates the obsolete Proof Plann
 
 Stage 5C-2 preserves the 1,039 existing tests. Real File/Blob tests exercise complete JSON round trips, official Markdown output, strict UTF-8/JSON/schema checks, tampered fees/reductions/obligations, exact file-size boundaries, untrusted filenames/MIME, and native Object URL cleanup. React DOM tests use real evidence alongside controlled failure/race cases to verify source separation, stale-read rejection, current workspace preservation, retry/clear behavior, safe text rendering, accessibility, and no runtime requests or browser persistence. Responsive browser checks target 320, 390, 768, and 1440px. Runtime dependencies, proof format, financial cores, and formal fixtures remain unchanged.
 
-GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
+GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests through the unchanged CI workflow. The Stage 6 deployment workflow repeats these checks before publishing, preserving the complete 1,160-test Stage 1–5C-2 baseline. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
-## Future deployment target
+## GitHub Pages deployment
 
-The intended hosting target is GitHub Pages for the public `termshift-finance-lab` repository. Vite's base path is configured as `/termshift-finance-lab/` so generated asset URLs support that repository path.
+GitHub Pages hosts the public repository's built static files. Vite's base path stays `/termshift-finance-lab/`; generated JavaScript, CSS, and local asset URLs resolve under that project path. The HTML favicon uses Vite's `%BASE_URL%` placeholder. The application has no URL routing, React Router, or deployment-specific SPA fallback.
 
-The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are not configured by Stage 5C-2.
+`.github/workflows/deploy.yml` runs on main pushes and manual dispatch, using Node.js from `.nvmrc`. It uploads only the verified `dist/` directory with the official Pages artifact action and deploys through the `github-pages` environment. Pull requests retain ordinary CI without publishing. The build uses read access to repository contents and Pages configuration; the deployment job receives only the Pages and OIDC permissions needed to publish. Actions use immutable commit pins, and deployment concurrency serializes publication with only the latest pending run retained. No private token or hardcoded secret is required.
+
+The deployment workflow adds `dist/build-info.json` after the production build, with a `commit` field containing the full source commit SHA and no timestamp. It is static build output, excluded from Git, and inspected directly during deployment verification. The React application does not fetch it at runtime. Verification must match that SHA to the successful workflow run and repository main, inspect the `github-pages` deployment, obtain the official Pages URL, and exercise the actual public website. A successful ordinary CI run alone does not prove deployment or current-version delivery.
+
+Repository Settings → Pages uses **GitHub Actions** as its source. The production browser downloads the site's own HTML, JavaScript, CSS, favicon, and local assets from GitHub Pages, then runs all financial operations and proof file handling locally. Static hosting does not add a backend, API, database, login, analytics, or remote evidence upload. See [DEPLOYMENT.md](DEPLOYMENT.md) for setup, redeployment, asset-path troubleshooting, and the production verification procedure.
