@@ -390,7 +390,11 @@ describe('Interactive financial Dashboard', () => {
     expect(financialDiff.getAttribute('aria-current')).toBe('page')
     fireEvent.click(dashboard)
     expect(screen.getByRole('main').id).toBe('dashboard')
-    for (const name of ['Counterexample Hunter', 'Proof of Impact']) {
+    const hunter = screen.getByRole('button', { name: 'Counterexample Hunter' })
+    fireEvent.click(hunter)
+    expect(screen.getByRole('main').id).toBe('counterexample-hunter')
+    expect(hunter.getAttribute('aria-current')).toBe('page')
+    for (const name of ['Proof of Impact']) {
       expect(screen.queryByRole('link', { name })).toBeNull()
       expect(screen.queryByRole('button', { name })).toBeNull()
     }

@@ -24,10 +24,11 @@ describe('Project identity and honest development scope', () => {
     expect(container.querySelector('script[src], iframe')).toBeNull()
   })
 
-  it('marks future modules as planned while providing working Dashboard and Financial Diff views', () => {
+  it('marks Proof of Impact as planned while providing three working workspace views', () => {
     render(<App />)
 
-    for (const name of ['Counterexample Hunter', 'Proof of Impact']) {
+    expect(screen.getByRole('button', { name: 'Counterexample Hunter' })).toBeTruthy()
+    for (const name of ['Proof of Impact']) {
       const heading = screen.getByRole('heading', { name, level: 2 })
       const card = heading.parentElement
       expect(card).not.toBeNull()

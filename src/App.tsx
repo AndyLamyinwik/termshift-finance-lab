@@ -1,10 +1,10 @@
 import Dashboard from './features/dashboard/Dashboard'
 import FinancialDiff from './features/financial-diff/FinancialDiff'
+import CounterexampleHunter from './features/hunter/CounterexampleHunter'
 import { useWorkspace } from './features/workspace/useWorkspace'
 import './App.css'
 
 const plannedModules = [
-  { name: 'Counterexample Hunter', description: 'Find scenarios that reveal a difference.' },
   { name: 'Proof of Impact', description: 'Inspect and reproduce the evidence.' },
 ] as const
 
@@ -52,6 +52,9 @@ function App() {
             <button type="button" className={`nav-item ${workspace.activeView === 'financial-diff' ? 'nav-current' : ''}`}
               aria-current={workspace.activeView === 'financial-diff' ? 'page' : undefined} aria-controls="workspace-content"
               onClick={() => workspace.setActiveView('financial-diff')}>Financial Diff</button>
+            <button type="button" className={`nav-item ${workspace.activeView === 'counterexample-hunter' ? 'nav-current' : ''}`}
+              aria-current={workspace.activeView === 'counterexample-hunter' ? 'page' : undefined} aria-controls="workspace-content"
+              onClick={() => workspace.setActiveView('counterexample-hunter')}>Counterexample Hunter</button>
           </nav>
           <div className="nav-planned">
             <p className="eyebrow">Planned interfaces</p>
@@ -67,7 +70,9 @@ function App() {
         </aside>
 
         <div id="workspace-content" className="workspace-content">
-          {workspace.activeView === 'dashboard' ? <Dashboard workspace={workspace} /> : <FinancialDiff workspace={workspace} />}
+          {workspace.activeView === 'dashboard' ? <Dashboard workspace={workspace} />
+            : workspace.activeView === 'financial-diff' ? <FinancialDiff workspace={workspace} />
+              : <CounterexampleHunter workspace={workspace} />}
         </div>
       </div>
 
@@ -78,7 +83,7 @@ function App() {
             Synthetic financial experiments for research and education. Not financial advice.
           </p>
         </div>
-        <span>Stage 5B-1 · Local rule comparison</span>
+        <span>Stage 5B-2 · Local counterexample search</span>
       </footer>
     </div>
   )
