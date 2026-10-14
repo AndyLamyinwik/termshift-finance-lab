@@ -1,10 +1,12 @@
 # TermShift
 
+[Live Demo — Public Preview](https://andylamyinwik.github.io/termshift-finance-lab/)
+
 **Financial Contract Counterexample Lab**
 
 TermShift is an explainable financial contract simulation and counterexample discovery engine. It aims to help people compare contract rules, discover scenarios where their outcomes differ, and understand the impact of those differences.
 
-**Project in Development — Stage 5C-2: Portable Evidence Export & Import**
+**Project in Development — Stage 6: GitHub Pages Public Preview**
 
 TermShift provides a local Dashboard, Financial Diff editor, Counterexample Hunter, and Proof of Impact Viewer for three synthetic experiments. Select an experiment, apply validated contract changes, search for differing outcomes, then reduce a selected witness and verify its calculation evidence. Download complete Proof JSON or a readable Markdown report, and independently verify saved JSON from a local file. All financial results come from the existing engine and evidence APIs. Settings, working contracts, search results, and current/imported proofs remain in page memory and disappear on reload; only an explicit download saves a file.
 
@@ -31,7 +33,7 @@ npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite, normally `http://localhost:5173/termshift-finance-lab/`. The Dashboard initially shows The Waiver Trap. Edit rules in **Financial Diff** and choose **Apply Changes**, then inspect Dashboard costs or choose **Run Search** in **Counterexample Hunter**. Select a retained witness, open **Proof of Impact**, set **Max Checks** (default 200; range 1–300), and choose **Generate Proof**. Inspect the original and reduced scenarios, accepted reduction steps, and actual verification result. **Verify Again** checks the saved proof without rerunning search or minimization. **Reset to Original** restores original contracts and default search/minimization controls and clears results. Selecting a different experiment discards drafts, applied changes, search results, and proofs; reloading starts again with the original Waiver Trap. See the [Financial Diff guide](docs/FINANCIAL_DIFF.md), [Counterexample Hunter guide](docs/COUNTEREXAMPLE_UI.md), and [Proof Viewer guide](docs/PROOF_VIEWER_UI.md) for usage and limits. Vite is configured with `/termshift-finance-lab/` for the future GitHub Pages target. Deployment is reserved for Stage 6 and is not configured here.
+Open the local URL printed by Vite, normally `http://localhost:5173/termshift-finance-lab/`. The Dashboard initially shows The Waiver Trap. Edit rules in **Financial Diff** and choose **Apply Changes**, then inspect Dashboard costs or choose **Run Search** in **Counterexample Hunter**. Select a retained witness, open **Proof of Impact**, set **Max Checks** (default 200; range 1–300), and choose **Generate Proof**. Inspect the original and reduced scenarios, accepted reduction steps, and actual verification result. **Verify Again** checks the saved proof without rerunning search or minimization. **Reset to Original** restores original contracts and default search/minimization controls and clears current workspace results. Selecting a different experiment discards drafts, applied changes, search results, and current workspace proofs; reloading starts again with the original Waiver Trap. See the [Financial Diff guide](docs/FINANCIAL_DIFF.md), [Counterexample Hunter guide](docs/COUNTEREXAMPLE_UI.md), and [Proof Viewer guide](docs/PROOF_VIEWER_UI.md) for usage and limits. Vite uses `/termshift-finance-lab/` for the GitHub Pages project path. The [deployment guide](docs/DEPLOYMENT.md) explains publication and verification.
 
 In Proof of Impact, **Evidence Actions** lets you choose **Current Workspace Proof** or **Imported Proof**. Download buttons are enabled only for a verified proof in the selected view. **Download JSON** saves `termshift-impact-proof.json`; **Download Markdown** saves `termshift-impact-report.md`. Use **Import Proof JSON** to select a local UTF-8 JSON file up to 5 MiB. The app checks the official schema and independently recalculates evidence against its embedded contracts; it does not replace working contracts, search results, or the current workspace proof. **Verify Imported Proof Again** rechecks that saved evidence, and **Clear Imported Proof** clears only the imported state. Apply, Reset, and switching experiments invalidate current workspace results while preserving independently imported evidence. JSON can be reverified; Markdown is a readable report and does not replace complete evidence. Verified is calculation consistency, not a digital signature or authenticated authorship. See the [Portable Evidence guide](docs/PORTABLE_EVIDENCE.md).
 
@@ -56,7 +58,15 @@ npm test
 npm run build
 ```
 
-The CI workflow runs this verification sequence on pushes and pull requests. The repository does not include a deployment workflow.
+The unchanged CI workflow runs this verification sequence on pushes and pull requests. The separate Pages deployment workflow repeats these checks on main pushes or manual dispatch, then uploads `dist/` and publishes it to the `github-pages` environment. Pull requests do not publish.
+
+## Public preview deployment
+
+GitHub Pages serves the verified static build at the Live Demo link above. Repository Settings → Pages uses **GitHub Actions** as its Source. Official Actions are pinned to release commit SHAs; Node.js comes from `.nvmrc`. Build jobs have read-only source/Pages permissions, and the deployment job has only Pages write and OIDC permissions. Production runs are serialized with only the newest pending run retained. No private deployment token is needed.
+
+For a manual redeployment, open **Actions → Deploy to GitHub Pages → Run workflow**, select **main**, and wait for both jobs to succeed. Confirm the ordinary CI, the Pages deployment environment, and the public URL separately. The deployed [`build-info.json`](https://andylamyinwik.github.io/termshift-finance-lab/build-info.json) records the exact source commit in its `commit` field; compare it with main and the successful workflow. The application does not fetch this metadata during use.
+
+Normal browser requests load HTML, JS, CSS, and the local favicon from Pages. Financial calculations and evidence import/export run locally, without a backend, runtime API, file upload, tracking, or browser permanent storage. Public Preview is not v1.0.0 or a financial regulatory certification. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for asset-path troubleshooting and the production smoke checklist.
 
 ## Current scope
 
@@ -126,7 +136,7 @@ These are computations over fictional inputs, not real product analyses or finan
 | Counterexample Hunter | Implemented in Stage 5B-2: search with applied working contracts, a neutral starting scenario, explicit validated seed/ranges/budget, report statistics, and selectable real witnesses. |
 | Proof of Impact | Implemented in Stages 5C-1 and 5C-2: reduce and verify a searched witness, inspect original/reduced evidence and accepted steps, download complete JSON/readable Markdown, and independently verify local imported proof files. |
 
-PDF generation, GitHub Pages deployment, Release creation, and later stages are outside Stage 5C-2. Rule-category additions/removals, scenario editing, general contract metadata editing, structural rule diffs, and standalone contract import/export remain outside the interface. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places.
+Stage 6 adds static GitHub Pages deployment to the existing interface. PDF generation, Release creation, a v1.0.0 tag, and subsequent stages remain outside this delivery. Rule-category additions/removals, scenario editing, general contract metadata editing, structural rule diffs, and standalone contract import/export remain outside the interface. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places.
 
 See [docs/FINANCIAL_DIFF.md](docs/FINANCIAL_DIFF.md) for editing, [docs/COUNTEREXAMPLE_UI.md](docs/COUNTEREXAMPLE_UI.md) for Hunter usage and report interpretation, [docs/PROOF_VIEWER_UI.md](docs/PROOF_VIEWER_UI.md) for proof controls and evidence limits, [docs/PORTABLE_EVIDENCE.md](docs/PORTABLE_EVIDENCE.md) for JSON/Markdown export and independent import, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for frontend constraints and module boundaries, [docs/FINANCIAL_MODEL.md](docs/FINANCIAL_MODEL.md) for input fields and validation requirements, [docs/CALCULATION_ENGINE.md](docs/CALCULATION_ENGINE.md) for formulas and calculation traces, [docs/COUNTEREXAMPLE_SEARCH.md](docs/COUNTEREXAMPLE_SEARCH.md) for search options and coverage limits, and [docs/MINIMIZATION_AND_PROOF.md](docs/MINIMIZATION_AND_PROOF.md) for reduction APIs, proof verification, and reproducible synthetic results.
 
