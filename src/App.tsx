@@ -1,8 +1,9 @@
 import Dashboard from './features/dashboard/Dashboard'
+import FinancialDiff from './features/financial-diff/FinancialDiff'
+import { useWorkspace } from './features/workspace/useWorkspace'
 import './App.css'
 
 const plannedModules = [
-  { name: 'Financial Diff', description: 'Explore changes in contract terms.' },
   { name: 'Counterexample Hunter', description: 'Find scenarios that reveal a difference.' },
   { name: 'Proof of Impact', description: 'Inspect and reproduce the evidence.' },
 ] as const
@@ -25,9 +26,10 @@ function BrandMark() {
 }
 
 function App() {
+  const workspace = useWorkspace()
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#dashboard">Skip to content</a>
+      <a className="skip-link" href={`#${workspace.activeView}`}>Skip to content</a>
 
       <header className="app-header">
         <div className="brand" aria-label="TermShift">
@@ -44,9 +46,12 @@ function App() {
         <aside className="workspace-nav" aria-label="Workspace">
           <p className="eyebrow">Contract workspace</p>
           <nav aria-label="Main navigation">
-            <a className="nav-current" href="#dashboard" aria-current="page">
-              <span aria-hidden="true">◫</span> Dashboard
-            </a>
+            <button type="button" className={`nav-item ${workspace.activeView === 'dashboard' ? 'nav-current' : ''}`}
+              aria-current={workspace.activeView === 'dashboard' ? 'page' : undefined} aria-controls="workspace-content"
+              onClick={() => workspace.setActiveView('dashboard')}>Dashboard</button>
+            <button type="button" className={`nav-item ${workspace.activeView === 'financial-diff' ? 'nav-current' : ''}`}
+              aria-current={workspace.activeView === 'financial-diff' ? 'page' : undefined} aria-controls="workspace-content"
+              onClick={() => workspace.setActiveView('financial-diff')}>Financial Diff</button>
           </nav>
           <div className="nav-planned">
             <p className="eyebrow">Planned interfaces</p>
@@ -61,7 +66,9 @@ function App() {
           <p className="workspace-note">Local computation.<br />Explainable by design.</p>
         </aside>
 
-        <Dashboard />
+        <div id="workspace-content" className="workspace-content">
+          {workspace.activeView === 'dashboard' ? <Dashboard workspace={workspace} /> : <FinancialDiff workspace={workspace} />}
+        </div>
       </div>
 
       <footer className="site-footer">
@@ -71,7 +78,7 @@ function App() {
             Synthetic financial experiments for research and education. Not financial advice.
           </p>
         </div>
-        <span>Stage 5A · Local analysis</span>
+        <span>Stage 5B-1 · Local rule comparison</span>
       </footer>
     </div>
   )

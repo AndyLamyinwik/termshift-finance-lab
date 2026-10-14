@@ -1,7 +1,11 @@
 import type { Comparison } from '../../engine'
 import { formatUsdCents, formatDeltaCents, getCostDirection } from './format'
 
-export function FinancialSummary({ comparison }: { comparison: Comparison }) {
+export function FinancialSummary({ comparison, oldModified = false, newModified = false }: {
+  comparison: Comparison
+  oldModified?: boolean
+  newModified?: boolean
+}) {
   const direction = getCostDirection(comparison.deltaCents)
 
   return (
@@ -14,12 +18,12 @@ export function FinancialSummary({ comparison }: { comparison: Comparison }) {
         <article className="metric-card" aria-label="Old Contract Cost">
           <h3 className="metric-label">Old Contract Cost</h3>
           <p className="metric-value">{formatUsdCents(comparison.oldEvaluation.totalCents)}</p>
-          <p className="metric-note">Original terms</p>
+          <p className="metric-note">{oldModified ? 'Modified working terms' : 'Original experiment terms'}</p>
         </article>
         <article className="metric-card" aria-label="New Contract Cost">
           <h3 className="metric-label">New Contract Cost</h3>
           <p className="metric-value">{formatUsdCents(comparison.newEvaluation.totalCents)}</p>
-          <p className="metric-note">Changed terms</p>
+          <p className="metric-note">{newModified ? 'Modified working terms' : 'Original experiment terms'}</p>
         </article>
         <article className={`metric-card ${direction.kind}`} aria-label="Cost Difference">
           <h3 className="metric-label">Cost Difference</h3>

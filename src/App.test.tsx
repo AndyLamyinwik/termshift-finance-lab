@@ -24,10 +24,10 @@ describe('Project identity and honest development scope', () => {
     expect(container.querySelector('script[src], iframe')).toBeNull()
   })
 
-  it('marks future modules as planned while providing a working Dashboard selector', () => {
+  it('marks future modules as planned while providing working Dashboard and Financial Diff views', () => {
     render(<App />)
 
-    for (const name of ['Financial Diff', 'Counterexample Hunter', 'Proof of Impact']) {
+    for (const name of ['Counterexample Hunter', 'Proof of Impact']) {
       const heading = screen.getByRole('heading', { name, level: 2 })
       const card = heading.parentElement
       expect(card).not.toBeNull()
@@ -38,6 +38,9 @@ describe('Project identity and honest development scope', () => {
 
     const selector = screen.getByRole('combobox', { name: 'Experiment' })
     expect(selector.tagName).toBe('SELECT')
+    const navigation = screen.getByRole('navigation', { name: 'Main navigation' })
+    expect(within(navigation).getByRole('button', { name: 'Dashboard' })).toBeTruthy()
+    expect(within(navigation).getByRole('button', { name: 'Financial Diff' })).toBeTruthy()
     expect(screen.queryByText('Interactive calculations are not available here yet.')).toBeNull()
   })
 })

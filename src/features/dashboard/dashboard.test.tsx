@@ -378,11 +378,21 @@ describe('Interactive financial Dashboard', () => {
     expect(status.textContent?.length).toBeLessThan(350)
   })
 
-  it('has no inactive primary buttons or planned-page navigation', () => {
+  it('offers working view buttons without planned-page navigation', () => {
     render(<App />)
-    expect(screen.queryAllByRole('button')).toHaveLength(0)
-    for (const name of ['Financial Diff', 'Counterexample Hunter', 'Proof of Impact']) {
+    const navigation = screen.getByRole('navigation', { name: 'Main navigation' })
+    const dashboard = within(navigation).getByRole('button', { name: 'Dashboard' })
+    const financialDiff = within(navigation).getByRole('button', { name: 'Financial Diff' })
+    expect(dashboard.getAttribute('aria-current')).toBe('page')
+    expect(financialDiff.hasAttribute('disabled')).toBe(false)
+    fireEvent.click(financialDiff)
+    expect(screen.getByRole('heading', { name: 'Financial Diff', level: 1 })).toBeTruthy()
+    expect(financialDiff.getAttribute('aria-current')).toBe('page')
+    fireEvent.click(dashboard)
+    expect(screen.getByRole('main').id).toBe('dashboard')
+    for (const name of ['Counterexample Hunter', 'Proof of Impact']) {
       expect(screen.queryByRole('link', { name })).toBeNull()
+      expect(screen.queryByRole('button', { name })).toBeNull()
     }
   })
 })

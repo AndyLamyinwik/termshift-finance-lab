@@ -14,13 +14,15 @@ Stage 4B adds a bounded, deterministic minimizer for Stage 4A witnesses and a JS
 
 Stage 5A replaces the informational overview with an interactive financial dashboard for the three formal experiments. React state controls the experiment selection, and the existing `compareContracts` API supplies all summary amounts, category comparisons, and calculation traces. The dashboard handles structured engine failures, formats integer cents exactly, and uses local responsive CSS and semantic controls. It does not modify the financial models, formulas, search/minimization APIs, or fixtures.
 
-The dedicated Counterexample Hunter and Proof of Impact interfaces remain planned for Stage 5B and Stage 5C, respectively. The existing search, minimizer, and evidence cores are available as TypeScript APIs. Stage 5A does not add a contract editor, structural rule comparison, interactive search/proof pages, PDF output, or deployment. GitHub Pages publishing belongs to Stage 6.
+Stage 5B-1 adds a Financial Diff editor and shared in-memory workspace state. Users can edit the existing supported financial rules on independent old/new working contracts, validate and apply them together, and reset the original experiment terms. Dashboard and Financial Diff use the same applied contracts and unchanged scenario. Input parsing and presentation do not replace the existing financial formulas or alter fixtures and core APIs. No dependencies are added.
+
+The dedicated Counterexample Hunter and Proof of Impact interfaces remain planned for Stage 5B-2 and Stage 5C, respectively. The existing search, minimizer, and evidence cores remain TypeScript APIs. Stage 5B-1 does not add structural rule comparison, interactive search/proof pages, scenario editing, rule-category additions/removals, PDF output, import/export, or deployment. GitHub Pages publishing belongs to Stage 6.
 
 ## Static frontend
 
 Vite serves the application during local development and produces static HTML, CSS, and JavaScript assets for production. The production application runs in the browser and does not require an application server.
 
-React components are responsible for presentation and experiment-selection state. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
+React components are responsible for presentation and the shared workspace's selection, applied-contract, text-draft, and view state. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
 
 The project remains one frontend package; a monorepo, Next.js application, and backend services are outside this architecture.
 
@@ -35,25 +37,46 @@ The project remains one frontend package; a monorepo, Next.js application, and b
 
 Fetching the application's own static assets is part of normal page loading. Dependency installation, Git operations, and GitHub Actions may use the network for development and build tasks. These allowances do not introduce runtime external services.
 
-## Dashboard presentation
+## Workspace and comparison presentation
 
-The Stage 5A interface is a single screen without a routing dependency. `App.tsx` retains the TermShift brand, project status, accessible content entry point, and future-module context. Dashboard-specific components live under `src/features/dashboard/`:
+`App.tsx` owns the `useWorkspace` hook and supplies its controller through props to Dashboard and Financial Diff. Sidebar buttons switch the active view without a router, URL state, or state-management dependency. The app retains the TermShift brand, project status, accessible content entry point, and planned-module context. Components are separated by responsibility:
 
 | Module | Responsibility |
 | --- | --- |
-| `Dashboard.tsx` | Hold the selected formal experiment in React state, default to The Waiver Trap, call `compareContracts`, and choose successful or structured-error presentation. |
+| `App.tsx` | Own the workspace hook and semantic navigation for Dashboard and Financial Diff. |
+| `workspace/useWorkspace.ts` | Hold shared state, clone original contracts on experiment selection/reset, validate both drafts on Apply, and memoize the engine comparison over applied contracts and the formal scenario. |
+| `workspace/types.ts` | Declare the workspace controller, view and contract-side types. |
+| `workspace/WorkspacePresentation.tsx` | Share the experiment selector, draft/applied status notices, comparison summaries, traces, and structured engine error display. |
+| `dashboard/Dashboard.tsx` | Present the selected experiment and shared applied-contract results. |
 | `ComparisonPanels.tsx` | Render old/new totals, signed cost difference, three fee categories, readable values, and CSS comparison bars from a `Comparison`. |
 | `CalculationDetails.tsx` | Render expandable old/new `Evaluation.trace` records according to their discriminated `ruleType`. |
 | `format.ts` | Format safe integer USD cents and signed differences exactly, independently of React and financial fee formulas. |
+| `financial-diff/FinancialDiff.tsx` | Present the shared selection, two contract editors, Apply/Reset controls, validation feedback, and applied-contract results. |
+| `financial-diff/ContractEditor.tsx` | Render controlled text fields for existing rules, explicit units, waiver-kind selection, and accessible field errors. |
+| `financial-diff/drafts.ts` | Parse bounded raw USD/integer text exactly, reject rule-set changes, preserve metadata, and validate final values with the formal Contract schema. |
 | `App.css` and `index.css` | Provide the local dark visual system, responsive layout, focus treatment, and reduced-motion support. |
 
-The data flow is `src/scenarios/` fixture → selected React state → `compareContracts(oldContract, newContract, scenario)` → `Comparison` → summaries, category bars, and traces. Fixture objects supply inputs and descriptions rather than predetermined answers. Selection changes recalculate results locally without editing the fixtures, initiating a network request, or showing a simulated network loading state.
+The financial data flow is `src/scenarios/` fixture → independent working contract copies → `compareContracts(workingOldContract, workingNewContract, selectedExperiment.scenario)` → `Comparison` → summaries, category bars, and traces. Fixture objects supply inputs and descriptions rather than predetermined answers. The scenario is identical for both evaluations and is never edited by this UI. Selection and valid Apply operations recalculate locally without editing fixtures, initiating a network request, or showing a simulated network loading state.
 
-The dashboard checks the comparison result's `success` discriminant. On failure, it renders readable issue paths, codes, and messages instead of totals or a substitute zero-cost result. On success, positive, negative, and zero differences have explicit text as well as visual states. A concise live announcement describes changed results; the full trace is outside the live region.
+Both views check the shared comparison result's `success` discriminant. On failure, they render readable original issue paths, codes, and messages instead of totals or a substitute zero-cost result. On success, positive, negative, and zero differences have explicit text as well as visual states. A concise live announcement describes changed results; the full trace is outside the live region.
 
-The labeled native experiment selector and native `details`/`summary` controls support keyboard operation. Layouts use flexible columns and wrapping content for small screens, with visible focus states and no fixed reading heights. The fee bars supplement text amounts; their widths are display ratios, and their colors are not the sole means of communicating a difference. Planned modules have explanatory labels rather than inactive controls.
+The sidebar's native buttons, labeled experiment selector, controlled text fields, waiver selector, and native `details`/`summary` controls support keyboard operation. Navigation buttons have accessible names and `aria-current` marks the active view. Layouts use flexible columns and wrapping content for small screens, with visible focus states and no fixed reading heights. Contract editors use two columns on desktop and stack on narrow screens. Field errors use associated descriptions and `aria-invalid`. The fee bars supplement text amounts; their widths are display ratios, and their colors are not the sole means of communicating a difference. Planned modules have explanatory labels rather than inactive controls.
 
 Financial rules are never implemented in the presentation modules. Monthly traces display the actual count or purchase-total waiver threshold and decision; transaction traces display the transaction amount, fixed fee, basis-point rate, rounded proportional fee, and charged fee; late traces display due/paid dates, late/grace days, and the charged fee. These values come directly from the existing engine evidence.
+
+## Working Draft and Apply data flow
+
+The workspace tracks `selectedExperimentId`, `workingOldContract`, `workingNewContract`, `activeView`, both raw `ContractDraft` objects, field issues, and Apply status. It retains snapshots of the applied text drafts to derive `hasUnappliedChanges`; separate modified flags compare working contracts to the current original fixtures. Raw drafts and applied numeric contracts serve different purposes: incomplete text can be retained in a field without becoming a financial input.
+
+`contractToDraft` creates editable text from cloned formal contracts. `parseContractDraft(baseContractInput, draftInput)` accepts unknown input, strictly validates draft structure, and rejects attempts to add or remove rule categories. It preserves contract ID, name, schema version, semver, currency, billing cycle, and effective date. Only the existing monthly fee and waiver, transaction fixed fee/rate, and late fee/grace fields are editable.
+
+USD and integer inputs are capped at 24 characters before `BigInt` conversion. USD text accepts canonical non-negative ASCII decimal strings with up to two fractional digits; whole-dollar and fractional parts form exact integer cents without `parseFloat(value) * 100`. The upper bound is `90071992547409.91` USD, equal to `Number.MAX_SAFE_INTEGER` cents. Integer fields accept canonical digits only. Blank text, signs, whitespace, leading zeros, scientific notation, non-finite tokens, and other invalid numeric formats are rejected without trimming or correction. Waiver counts are positive safe integers, purchase-total waiver thresholds are positive cents, rates are integer basis points from 0 to 10,000, and grace days are non-negative safe integers.
+
+Apply parses both Old and New drafts and calls the Stage 2 `validateContract` for each final numeric contract. It commits both contracts together only if both validations succeed. Failure retains all text and the last applied contracts, exposes errors at the corresponding fields, and identifies displayed results as belonging to the last applied version. Valid contracts can still overflow when evaluated; the new applied contracts remain available for correction while the engine failure replaces financial success panels. The UI distinguishes contract validation from successful calculation.
+
+The comparison is memoized against working-contract references and the selected formal scenario. Editing raw fields and navigating between views do not send unvalidated data to the engine. Applied changes and raw drafts survive view switching. Reset clones both original contracts, rebuilds their text drafts, clears validation errors and pending edits, and retains the active view and experiment. Selecting a different experiment does the same for its original terms; an adjacent selector notice explains beforehand that both pending and applied changes will be discarded.
+
+All workspace state exists only in the current page's React memory. Reload initializes Dashboard with the original Waiver Trap. There is no local storage, server persistence, runtime API, URL routing, or scenario mutation. Modified working contracts are visibly marked so their retained metadata cannot be mistaken for untouched fixtures. See [FINANCIAL_DIFF.md](FINANCIAL_DIFF.md) for the editing workflow.
 
 ## Financial data contracts
 
@@ -110,7 +133,7 @@ The wider module boundaries distinguish implemented foundations from future prod
 | Money | Handle integer minimum currency units, checked arithmetic, rate representations, and explicit rounding policies. |
 | Engine | Evaluate a validated contract against an explicit scenario and return its outcome and trace. |
 | Scenarios | Represent bounded, reproducible inputs and fixed synthetic fixtures; search generates a declared simplified family without altering those fixtures. |
-| Diff | Compare category and total outcomes for the same scenario; the Stage 5A dashboard presents formal experiment outcomes and traces, while structural rule comparison remains future work. |
+| Diff | Edit existing contract rules through validated drafts and compare category and total outcomes for the same unchanged scenario; Dashboard and Financial Diff share applied contracts and traces. Structural rule comparison remains future work. |
 | Counterexamples | Search declared bounded scenarios for a nonzero comparison delta, then reduce a verified witness within its bounds while preserving the sign of the difference. A product interface remains future work. |
 | Explanations | Present calculation traces in the Stage 5A dashboard and preserve reduction history in verifiable JSON/Markdown evidence; the dedicated proof interface remains future work. |
 
@@ -187,10 +210,12 @@ Stage 4B preserves all 497 existing tests and adds runtime tests for real search
 
 Stage 5A adds jsdom and React Testing Library as development dependencies for real rendered-selector interactions. The pure financial suites continue to use the Node.js environment. Dashboard tests check brand and semantic structure, default selection, switching across all three experiments, engine-derived summaries and categories, real trace details, structured errors, unchanged fixtures, local-only behavior, and exact USD formatting. The historical overview assertions are updated for the now-interactive screen while preserving its brand, accessibility, status, and local-resource checks. Runtime dependencies remain React, React DOM, and Zod.
 
+Stage 5B-1 preserves the existing suites while updating obsolete Planned/navigation expectations to the operational Financial Diff view. React Testing Library exercises navigation, atomic Apply, validation failures, Reset, selection changes, pending versus applied state, Old/New edits, waiver-kind switching, actual engine results, accessibility labels, and local-only behavior. Pure TypeScript parser tests cover canonical input, exact cents at the safe-integer boundary, numeric ranges, strict objects, unchanged metadata, frozen fixtures, and deterministic results. No dependencies are added, and the financial core APIs and formulas remain unchanged.
+
 GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
 ## Future deployment target
 
 The intended hosting target is GitHub Pages for the public `termshift-finance-lab` repository. Vite's base path is configured as `/termshift-finance-lab/` so generated asset URLs support that repository path.
 
-The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are reserved for Stage 6 and are not configured by Stage 5A.
+The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are reserved for Stage 6 and are not configured by Stage 5B-1.
