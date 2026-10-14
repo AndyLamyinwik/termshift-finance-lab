@@ -138,9 +138,8 @@ describe('Counterexample Hunter navigation and neutral search base', () => {
       .toBe('#counterexample-hunter')
     expect(searchSpy).not.toHaveBeenCalled()
     expectNoReport()
-    expect(screen.queryByRole('button', { name: 'Proof of Impact' })).toBeNull()
-    expect(screen.getByRole('heading', { name: 'Proof of Impact', level: 2 }).parentElement?.textContent)
-      .toContain('Planned')
+    expect(screen.getByRole('button', { name: 'Proof of Impact' })).toBeTruthy()
+    expect(screen.queryByText('Planned')).toBeNull()
   })
 
   it.each(experiments)('validates an independent neutral base for $name without altering its Dashboard Scenario', (experiment) => {

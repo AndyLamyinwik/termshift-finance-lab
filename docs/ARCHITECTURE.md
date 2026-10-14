@@ -18,13 +18,15 @@ Stage 5B-1 adds a Financial Diff editor and shared in-memory workspace state. Us
 
 Stage 5B-2 adds Counterexample Hunter to the same workspace. The view validates text search controls, builds a neutral copy of the selected scenario, and calls the existing Stage 4A search only on explicit Run Search. Report statistics and retained witnesses render the existing results; selected-witness financial evidence comes directly from its Stage 3 Comparison. Applied contracts, search settings, input snapshots, reports, and selection remain in memory across view navigation. Related input changes clear results. The financial core, formal fixtures, Proof APIs, and dependencies remain unchanged.
 
-Proof of Impact remains planned for Stage 5C, including witness minimization UI and Proof Viewer. Stage 5B-2 does not add structural rule comparison, scenario editing, rule-category additions/removals, JSON/PDF downloads, import/export, or deployment. GitHub Pages publishing belongs to Stage 6.
+Stage 5C-1 adds Proof of Impact Viewer to the same workspace. An explicit Generate Proof action takes the current search snapshot's contracts, selected witness, and numeric options, calls the unchanged Stage 4B creator, then calls its verifier before displaying Verified. The view renders original/reduced evidence, actual verification and budget information, and accepted reductions in bounded batches. View changes and pending drafts preserve valid proof state; relevant input changes clear it. No core algorithms, fixtures, or dependencies change.
+
+Stage 5C-2 downloads and proof import are not provided. Structural rule comparison, scenario editing, rule-category additions/removals, JSON/Markdown/PDF downloads, and deployment remain outside this stage. GitHub Pages publishing belongs to Stage 6.
 
 ## Static frontend
 
 Vite serves the application during local development and produces static HTML, CSS, and JavaScript assets for production. The production application runs in the browser and does not require an application server.
 
-React components are responsible for presentation and the shared workspace's selection, applied-contract, text-draft, search-report, witness-selection, and view state. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
+React components are responsible for presentation and the shared workspace's selection, applied-contract, text-draft, search-report, witness-selection, minimization-control, proof/verification, and view state. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
 
 The project remains one frontend package; a monorepo, Next.js application, and backend services are outside this architecture.
 
@@ -41,13 +43,13 @@ Fetching the application's own static assets is part of normal page loading. Dep
 
 ## Workspace and comparison presentation
 
-`App.tsx` owns the `useWorkspace` hook and supplies its controller through props to Dashboard, Financial Diff, and Counterexample Hunter. Sidebar buttons switch the active view without a router, URL state, or state-management dependency. The app retains the TermShift brand, project status, accessible content entry point, and planned-module context. Components are separated by responsibility:
+`App.tsx` owns the `useWorkspace` hook and supplies its controller through props to Dashboard, Financial Diff, Counterexample Hunter, and Proof of Impact. Sidebar buttons switch the active view without a router, URL state, or state-management dependency. The app retains the TermShift brand, project status, and accessible content entry point. All four modules are operational. Components are separated by responsibility:
 
 | Module | Responsibility |
 | --- | --- |
-| `App.tsx` | Own the workspace hook and semantic navigation for the three operational views. |
-| `workspace/useWorkspace.ts` | Hold shared state, clone original contracts on experiment selection/reset, validate both drafts on Apply, memoize comparisons, run search on command, and invalidate related reports. |
-| `workspace/types.ts` | Declare the workspace controller, view/contract-side types, and the successful SearchSnapshot. |
+| `App.tsx` | Own the workspace hook and semantic navigation for the four operational views. |
+| `workspace/useWorkspace.ts` | Hold shared state, clone originals on selection/reset, validate drafts on Apply, memoize comparisons, run search and proof APIs on command, and invalidate related evidence. |
+| `workspace/types.ts` | Declare the workspace controller, view/contract-side types, successful SearchSnapshot, and explicit idle/success/failure ProofState. |
 | `workspace/WorkspacePresentation.tsx` | Share the experiment selector, draft/applied status notices, comparison summaries, traces, and structured engine error display. |
 | `dashboard/Dashboard.tsx` | Present the selected experiment and shared applied-contract results. |
 | `ComparisonPanels.tsx` | Render old/new totals, signed cost difference, three fee categories, readable values, and CSS comparison bars from a `Comparison`. |
@@ -61,13 +63,19 @@ Fetching the application's own static assets is part of normal page loading. Dep
 | `hunter/SearchSummary.tsx` | Render original SearchReport counts, stop reason, source evaluations, coverage, and scoped conclusions. |
 | `hunter/WitnessExplorer.tsx` | Render the bounded retained-witness list and the selected witness's real scenario, Comparison, and reproduction evidence. |
 | `hunter/options.ts` | Validate canonical text through exact shared parsers and the formal SearchOptions validator; create an independent validated neutral Search Base. |
+| `proof-viewer/ProofViewer.tsx` | Present selected snapshot context, empty state, validated minimization controls, explicit Generate/Verify Again/Clear actions, structured issues, explanations, and limitations. |
+| `proof-viewer/ProofOverview.tsx` | Present actual proof versions, provenance, delta, checks/budget/termination, and verified comparison count. |
+| `proof-viewer/BeforeAfterComparison.tsx` | Compare actual original/minimized Scenario counts, amounts, obligations, delays, and Comparison totals. |
+| `proof-viewer/ReductionTimeline.tsx` | Show accepted reductions in ten-step batches with before/after summaries and accepted comparison evidence. |
+| `proof-viewer/scenarioPresentation.ts` | Summarize actual purchase totals with integer arithmetic and payment delays with the existing Gregorian helpers; supply display-only scenario/objective labels. |
+| `proof-viewer/options.ts` | Strictly validate required maxChecks text with the existing exact integer parser and official MinimizationOptionsSchema; derive the default budget from that schema. |
 | `App.css` and `index.css` | Provide the local dark visual system, responsive layout, focus treatment, and reduced-motion support. |
 
 The financial data flow is `src/scenarios/` fixture → independent working contract copies → `compareContracts(workingOldContract, workingNewContract, selectedExperiment.scenario)` → `Comparison` → summaries, category bars, and traces. Fixture objects supply inputs and descriptions rather than predetermined answers. The scenario is identical for both evaluations and is never edited by this UI. Selection and valid Apply operations recalculate locally without editing fixtures, initiating a network request, or showing a simulated network loading state.
 
 Both views check the shared comparison result's `success` discriminant. On failure, they render readable original issue paths, codes, and messages instead of totals or a substitute zero-cost result. On success, positive, negative, and zero differences have explicit text as well as visual states. A concise live announcement describes changed results; the full trace is outside the live region.
 
-The sidebar's native buttons, labeled experiment selector, controlled text fields, waiver selector, and native `details`/`summary` controls support keyboard operation. Navigation buttons have accessible names and `aria-current` marks the active view. Layouts use flexible columns and wrapping content for small screens, with visible focus states and no fixed reading heights. Contract editors use two columns on desktop and stack on narrow screens. Field errors use associated descriptions and `aria-invalid`. The fee bars supplement text amounts; their widths are display ratios, and their colors are not the sole means of communicating a difference. Planned modules have explanatory labels rather than inactive controls.
+The sidebar's native buttons, labeled experiment selector, controlled text fields, waiver selector, and native `details`/`summary` controls support keyboard operation. Navigation buttons have accessible names and `aria-current` marks the active view. Layouts use flexible columns and wrapping content for small screens, with visible focus states and no fixed reading heights. Contract editors and original/reduced proof panels use two columns on desktop and stack on narrow screens. Field errors use associated descriptions and `aria-invalid`. The fee bars supplement text amounts; their widths are display ratios, and their colors are not the sole means of communicating a difference.
 
 Financial rules are never implemented in the presentation modules. Monthly traces display the actual count or purchase-total waiver threshold and decision; transaction traces display the transaction amount, fixed fee, basis-point rate, rounded proportional fee, and charged fee; late traces display due/paid dates, late/grace days, and the charged fee. These values come directly from the existing engine evidence.
 
@@ -141,8 +149,8 @@ The wider module boundaries distinguish implemented foundations from future prod
 | Engine | Evaluate a validated contract against an explicit scenario and return its outcome and trace. |
 | Scenarios | Represent bounded, reproducible inputs and fixed synthetic fixtures; search generates a declared simplified family without altering those fixtures. |
 | Diff | Edit existing contract rules through validated drafts and compare category and total outcomes for the same unchanged scenario; Dashboard and Financial Diff share applied contracts and traces. Structural rule comparison remains future work. |
-| Counterexamples | Search declared bounded scenarios for a nonzero comparison delta; Counterexample Hunter presents applied-contract search, bounded results, and selected-witness evidence. The existing minimizer can reduce a verified witness, but its UI remains future work. |
-| Explanations | Present calculation traces in the Stage 5A dashboard and preserve reduction history in verifiable JSON/Markdown evidence; the dedicated proof interface remains future work. |
+| Counterexamples | Search declared bounded scenarios for a nonzero comparison delta; Counterexample Hunter presents applied-contract search, bounded results, and selected-witness evidence. Proof Viewer explicitly runs the existing minimizer on that saved witness. |
+| Explanations | Present calculation traces and verified original/reduced comparisons, budgets, and accepted reduction history in Proof Viewer. The independent core also supports JSON evidence and Markdown formatting; downloads and import remain outside this stage. |
 
 The rules engine is independent of React and browser presentation. Its core functions are pure and deterministic: the same contract and scenario yield the same result. Evaluation uses only explicit input dates. Search likewise uses explicit bounds and a seed rather than reading the system clock or an external service.
 
@@ -198,7 +206,33 @@ Result validity follows the inputs that produced it:
 
 The UI presents `evaluatedCount` as actual financial comparisons including failures, and successful comparisons as `evaluatedCount - failedCount`. Skips, failures, visited canonical parameter tuples, source evaluations, and the comparison budget are distinct statistics. `coverage.complete` concerns traversal of the declared family and does not certify successful evaluation of every tuple, unrestricted financial coverage, or contract equivalence. A no-witness report says “No counterexample found within the selected search range and budget.” Retained witnesses are observed representative cases, without a global maximum claim.
 
-The retained list contains at most ten items. Purchase count and total derive from each witness's actual transaction array, and payment-delay summaries use the existing calendar-day helper. Selected details display individual transaction/payment records and the witness's existing Comparison, category deltas, traces, source, sequence, seed, and numeric bounds. Selecting another witness changes presentation only and does not rerun search. The complete candidate ledger remains in the snapshot for data integrity but is not rendered as thousands of DOM entries. Witness minimization, Proof Viewer, and JSON/PDF export remain outside Stage 5B-2. See [COUNTEREXAMPLE_UI.md](COUNTEREXAMPLE_UI.md) for the user workflow and concrete experiments.
+The retained list contains at most ten items. Purchase count and total derive from each witness's actual transaction array, and payment-delay summaries use the existing calendar-day helper. Selected details display individual transaction/payment records and the witness's existing Comparison, category deltas, traces, source, sequence, seed, and numeric bounds. Selecting another witness changes presentation only and does not rerun search, but clears an existing proof for the previous selection. The complete candidate ledger remains in the snapshot for data integrity but is not rendered as thousands of DOM entries. Proof generation belongs to the separate explicit Proof Viewer action. See [COUNTEREXAMPLE_UI.md](COUNTEREXAMPLE_UI.md) for the user workflow and concrete experiments.
+
+## Proof Viewer workspace flow
+
+The successful `SearchSnapshot` is the sole provenance boundary for proof generation. It contains the exact old/new contracts, base scenario, numeric search options, full search report, and selected witness ID used by the active run. The workspace resolves that ID against the snapshot's retained witnesses before creating evidence. Applied-contract changes clear the snapshot and its proof together, so a report from earlier contract terms cannot authorize a current Verified badge. Pending Financial Diff text never enters proof input.
+
+The workspace holds raw minimization budget text, associated field issues, and a discriminated `proofState`: `idle`, `success`, or `failure`. Success stores both a complete `ImpactProof` and the actual successful verification payload, including `verifiedComparisons`. Failure identifies the creation or verification phase, preserves original structured issues, and can retain the created proof for a verification retry. A creation failure has no successful proof. UI labels reflect this state: Not generated, Verification failed, or Verified. Successful creation alone cannot become Verified.
+
+`createMinimizationOptionsDraft()` reads the formal schema's default, 200, into a fresh required text field. `parseMinimizationOptionsDraft(unknown)` rejects unknown draft keys and missing/non-string fields, then calls the existing canonical integer parser with inclusive limits 1–300 and the unchanged `MinimizationOptionsSchema`. Text is capped at 24 characters, with no whitespace trimming, fractional conversion, sign handling, scientific notation, leading zeros, or silent clamping. Invalid text exposes a `maxChecks` field path and prevents the proof creator call.
+
+Only Generate Proof calls `createImpactProof(snapshot.oldContract, snapshot.newContract, selectedWitness, snapshot.searchOptions, parsedOptions)`. On success it immediately calls `verifyImpactProof` on that result. This synchronous flow is independent of renders, navigation, and input typing. Verify Again calls only `verifyImpactProof` against the saved proof; it neither searches nor minimizes again. Clear Proof returns state to idle. These operations add no backend task, worker, fake network delay, or unusable cancellation control.
+
+The overview reads proof schema/algorithm versions, contract IDs, witness metadata, search seed, deltas, minimization budget, checks, exhaustion, and termination directly from the saved proof; verification counts come from the actual verifier payload. Before/after summaries read each Scenario and Comparison, with exact shared USD formatting and the existing Gregorian calendar helpers. Zero purchases/payments, cross-month paid dates, and negative deltas remain valid presentation inputs. Reduction may decrease absolute delta while preserving its nonzero sign.
+
+The accepted-step timeline reads only `proof.reductionSteps`; rejected candidates are not invented as steps. Initially at most ten steps are mounted, and a native Show More control incrementally exposes another batch. Each displayed step identifies its number, type, reason, before/after purchase counts and totals, payment delays, delta, and accepted comparison. An empty sequence has an explicit no-accepted-steps message. Detailed transaction traces are rendered only when needed, so a maximum-budget proof does not mount every step's full scenario and calculation trace at once.
+
+| Operation | Proof validity behavior |
+| --- | --- |
+| Select a different retained witness | Clear proof and verification; preserve the current search report. |
+| Rerun search, including a failed attempt | Clear proof before replacing the search context. |
+| Edit any search control | Clear search result, witness selection, proof, and verification. |
+| Edit maxChecks | Clear prior proof and verification; require explicit generation with the new budget. |
+| Valid Financial Diff Apply | Clear snapshot and proof; retain current controls for explicit reruns. |
+| Reset to Original or choose a different experiment | Restore original contracts, default search controls, and maxChecks 200; clear result, selection, proof, and errors. |
+| Pending Financial Diff edits, invalid Apply, same-witness selection, or view navigation | Preserve still-valid snapshot and proof; explain when unapplied text differs from saved contracts. |
+
+All proof state lives in the existing React workspace, with no parallel store or LocalStorage, SessionStorage, IndexedDB, URL, file, or server persistence. Reload clears it. Verification establishes arithmetic, Scenario, and reduction consistency with the current engine; it is not a digital signature, immutable provenance guarantee, historical-search authentication, or regulatory certification. `strategy-complete` refers only to the defined reduction probes and search bounds, not global minimality. Stage 5C-2 proof downloads/import and PDF generation are not implemented. See [PROOF_VIEWER_UI.md](PROOF_VIEWER_UI.md).
 
 ## Counterexample minimization and impact evidence
 
@@ -248,10 +282,12 @@ Stage 5B-1 preserves the existing suites while updating obsolete Planned/navigat
 
 Stage 5B-2 preserves the existing suites and updates the obsolete Hunter Planned expectation for its operational navigation. New pure TypeScript tests exercise exact search-option conversion, every limit and paired range, strict draft inputs, neutral scenario validation, independent frozen obligations, original invalid dates, JSON serialization, and determinism. React Testing Library tests use real Stage 4A searches for the three official experiments, applied versus pending contracts, report invalidation and view persistence, witness selection, bounded work, structured errors, coverage wording, local-only behavior, and accessible controls. Responsive browser checks target 320, 390, 768, and 1440px. Runtime dependencies and core algorithms remain unchanged.
 
+Stage 5C-1 preserves all 945 existing tests and updates the obsolete Proof Planned/navigation expectation. New pure tests validate exact minimization-budget drafts, schema defaults, boundaries, arbitrary unknown input, immutability, JSON-safe results, and determinism. React Testing Library uses real Stage 4A searched witnesses and Stage 4B creation/verification for the three formal experiments, plus positive/negative directions, budget exhaustion, accepted-step pagination, invalidations, pending drafts, repeated verification, structured failures, forged fee rejection, frozen data, local-only operation, and accessible controls. Responsive browser checks target the same four widths. No financial-core or fixture tests are removed.
+
 GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
 ## Future deployment target
 
 The intended hosting target is GitHub Pages for the public `termshift-finance-lab` repository. Vite's base path is configured as `/termshift-finance-lab/` so generated asset URLs support that repository path.
 
-The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are reserved for Stage 6 and are not configured by Stage 5B-2.
+The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are reserved for Stage 6 and are not configured by Stage 5C-1.

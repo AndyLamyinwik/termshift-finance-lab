@@ -394,9 +394,9 @@ describe('Interactive financial Dashboard', () => {
     fireEvent.click(hunter)
     expect(screen.getByRole('main').id).toBe('counterexample-hunter')
     expect(hunter.getAttribute('aria-current')).toBe('page')
-    for (const name of ['Proof of Impact']) {
-      expect(screen.queryByRole('link', { name })).toBeNull()
-      expect(screen.queryByRole('button', { name })).toBeNull()
-    }
+    const proof = screen.getByRole('button', { name: 'Proof of Impact' })
+    fireEvent.click(proof)
+    expect(screen.getByRole('main').id).toBe('proof-of-impact')
+    expect(proof.getAttribute('aria-current')).toBe('page')
   })
 })

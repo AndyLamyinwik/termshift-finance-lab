@@ -1,11 +1,14 @@
 import type { Comparison, EngineResult } from '../../engine'
 import type { Contract, Scenario } from '../../models'
 import type { ExperimentFixture } from '../../scenarios'
+import type { MinimizationIssue } from '../../minimizer'
+import type { ImpactProof, ImpactProofVerification } from '../../proof'
 import type { SearchIssue, SearchOptions, SearchReport } from '../../search'
 import type { ContractDraft, DraftIssue } from '../financial-diff/drafts'
 import type { SearchOptionsDraft } from '../hunter/options'
+import type { MinimizationOptionsDraft } from '../proof-viewer/options'
 
-export type WorkspaceView = 'dashboard' | 'financial-diff' | 'counterexample-hunter'
+export type WorkspaceView = 'dashboard' | 'financial-diff' | 'counterexample-hunter' | 'proof-of-impact'
 export type ContractSide = 'old' | 'new'
 
 export interface SearchSnapshot {
@@ -16,6 +19,11 @@ export interface SearchSnapshot {
   searchReport: SearchReport
   selectedWitnessId: string | null
 }
+
+export type ProofState =
+  | { status: 'idle' }
+  | { status: 'success'; proof: ImpactProof; verification: ImpactProofVerification }
+  | { status: 'failure'; phase: 'creation' | 'verification'; proof: ImpactProof | null; issues: MinimizationIssue[] }
 
 export interface WorkspaceController {
   selectedExperimentId: string
@@ -37,6 +45,9 @@ export interface WorkspaceController {
   searchSnapshot: SearchSnapshot | null
   searchBase: EngineResult<Scenario>
   searchBaseComparison: EngineResult<Comparison> | null
+  proofState: ProofState
+  minimizationOptionsDraft: MinimizationOptionsDraft
+  minimizationIssues: DraftIssue[]
   selectExperiment(id: string): void
   setActiveView(view: WorkspaceView): void
   updateDraft(side: ContractSide, draft: ContractDraft): void
@@ -45,4 +56,8 @@ export interface WorkspaceController {
   updateSearchDraft(field: keyof SearchOptionsDraft, value: string): void
   runSearch(): void
   selectWitness(candidateId: string): void
+  updateMinimizationOptionsDraft(value: string): void
+  generateProof(): void
+  verifyProofAgain(): void
+  clearProof(): void
 }

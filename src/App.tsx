@@ -1,12 +1,9 @@
 import Dashboard from './features/dashboard/Dashboard'
 import FinancialDiff from './features/financial-diff/FinancialDiff'
 import CounterexampleHunter from './features/hunter/CounterexampleHunter'
+import ProofViewer from './features/proof-viewer/ProofViewer'
 import { useWorkspace } from './features/workspace/useWorkspace'
 import './App.css'
-
-const plannedModules = [
-  { name: 'Proof of Impact', description: 'Inspect and reproduce the evidence.' },
-] as const
 
 function BrandMark() {
   return (
@@ -55,24 +52,18 @@ function App() {
             <button type="button" className={`nav-item ${workspace.activeView === 'counterexample-hunter' ? 'nav-current' : ''}`}
               aria-current={workspace.activeView === 'counterexample-hunter' ? 'page' : undefined} aria-controls="workspace-content"
               onClick={() => workspace.setActiveView('counterexample-hunter')}>Counterexample Hunter</button>
+            <button type="button" className={`nav-item ${workspace.activeView === 'proof-of-impact' ? 'nav-current' : ''}`}
+              aria-current={workspace.activeView === 'proof-of-impact' ? 'page' : undefined} aria-controls="workspace-content"
+              onClick={() => workspace.setActiveView('proof-of-impact')}>Proof of Impact</button>
           </nav>
-          <div className="nav-planned">
-            <p className="eyebrow">Planned interfaces</p>
-            {plannedModules.map((module) => (
-              <div key={module.name}>
-                <h2>{module.name}</h2>
-                <span className="status-pill">Planned</span>
-                <p>{module.description}</p>
-              </div>
-            ))}
-          </div>
           <p className="workspace-note">Local computation.<br />Explainable by design.</p>
         </aside>
 
         <div id="workspace-content" className="workspace-content">
           {workspace.activeView === 'dashboard' ? <Dashboard workspace={workspace} />
             : workspace.activeView === 'financial-diff' ? <FinancialDiff workspace={workspace} />
-              : <CounterexampleHunter workspace={workspace} />}
+              : workspace.activeView === 'counterexample-hunter' ? <CounterexampleHunter workspace={workspace} />
+                : <ProofViewer workspace={workspace} />}
         </div>
       </div>
 
@@ -83,7 +74,7 @@ function App() {
             Synthetic financial experiments for research and education. Not financial advice.
           </p>
         </div>
-        <span>Stage 5B-2 · Local counterexample search</span>
+        <span>Stage 5C-1 · Local impact evidence</span>
       </footer>
     </div>
   )

@@ -218,11 +218,8 @@ describe('Financial Diff navigation and shared workspace', () => {
     expect(document.body.textContent).toMatch(/discard|clear/i)
     expect(document.body.textContent).toMatch(/Working Draft|Modified/i)
     expect(screen.getByRole('button', { name: 'Counterexample Hunter' })).toBeTruthy()
-    for (const name of ['Proof of Impact']) {
-      expect(screen.queryByRole('button', { name })).toBeNull()
-      const heading = screen.getByRole('heading', { name, level: 2 })
-      expect(heading.parentElement?.textContent).toContain('Planned')
-    }
+    expect(screen.getByRole('button', { name: 'Proof of Impact' })).toBeTruthy()
+    expect(screen.queryByText('Planned')).toBeNull()
   })
 })
 

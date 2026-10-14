@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
 
@@ -24,18 +24,12 @@ describe('Project identity and honest development scope', () => {
     expect(container.querySelector('script[src], iframe')).toBeNull()
   })
 
-  it('marks Proof of Impact as planned while providing three working workspace views', () => {
+  it('provides four working workspace views and an honest empty proof state', () => {
     render(<App />)
 
     expect(screen.getByRole('button', { name: 'Counterexample Hunter' })).toBeTruthy()
-    for (const name of ['Proof of Impact']) {
-      const heading = screen.getByRole('heading', { name, level: 2 })
-      const card = heading.parentElement
-      expect(card).not.toBeNull()
-      if (card === null) throw new Error(`Missing planned module card: ${name}`)
-      expect(within(card).getByText(/Planned/)).toBeTruthy()
-      expect(card.querySelector('button, a, input, select, textarea')).toBeNull()
-    }
+    const proof = screen.getByRole('button', { name: 'Proof of Impact' })
+    expect(screen.queryByText('Planned')).toBeNull()
 
     const selector = screen.getByRole('combobox', { name: 'Experiment' })
     expect(selector.tagName).toBe('SELECT')
@@ -43,5 +37,8 @@ describe('Project identity and honest development scope', () => {
     expect(within(navigation).getByRole('button', { name: 'Dashboard' })).toBeTruthy()
     expect(within(navigation).getByRole('button', { name: 'Financial Diff' })).toBeTruthy()
     expect(screen.queryByText('Interactive calculations are not available here yet.')).toBeNull()
+    fireEvent.click(proof)
+    expect(screen.getByRole('heading', { name: 'Proof of Impact', level: 1 })).toBeTruthy()
+    expect(screen.getByText('No witness selected. Run a counterexample search and select a witness first.')).toBeTruthy()
   })
 })

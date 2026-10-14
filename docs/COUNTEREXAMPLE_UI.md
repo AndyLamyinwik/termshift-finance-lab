@@ -10,6 +10,7 @@ Stage 5B-2 adds a local search interface for the three synthetic experiments. It
 4. Review the seed, comparison budget, result limit, and inclusive count/amount/delay ranges. The defaults below are ready to use.
 5. Choose **Run Search**. The synchronous pure function executes in this browser, only on this explicit action.
 6. Inspect the search summary, then select a retained witness to inspect its scenario, financial impact, calculation traces, and reproduction evidence.
+7. To reduce the selected witness, open **Proof of Impact**, choose a valid Max Checks budget, and explicitly **Generate Proof**. Stage 5C-1 verifies the returned evidence before showing Verified. See [PROOF_VIEWER_UI.md](PROOF_VIEWER_UI.md).
 
 If you want to change contract rules, open **Financial Diff**, edit existing fields, and choose **Apply Changes** before searching. Hunter visibly identifies modified applied terms. When Financial Diff has pending edits, Hunter explains that search uses the last applied contracts. Incomplete text and invalid drafts never enter search.
 
@@ -96,7 +97,7 @@ The existing `useWorkspace` owns both contract editing and Hunter state. A succe
 
 | Action | Result |
 | --- | --- |
-| Switch Dashboard / Financial Diff / Hunter | Preserve still-valid settings, report, and selected witness. |
+| Switch Dashboard / Financial Diff / Hunter / Proof | Preserve still-valid settings, report, selected witness, and proof. |
 | Type a Financial Diff draft or attempt invalid Apply | Preserve the report because applied contracts have not changed; remind users about pending text. |
 | Apply valid contract drafts | Clear report and selection; retain search settings for the next explicit run. |
 | Change a seed, range, budget, or result limit | Clear report and selection immediately; do not rerun automatically. |
@@ -126,4 +127,4 @@ These amounts are computed over fictional data. Expected examples belong in test
 
 Everything runs locally: no backend, database, AI/LLM, banking API, external API, remote asset, or telemetry. Stage 5B-2 adds no runtime dependency and does not change the Stage 2 model, Stage 3 formulas, Stage 4A search, Stage 4B Proof APIs, or formal financial fixtures.
 
-Proof of Impact remains marked **Planned**. Witness minimization UI, Proof Viewer, and JSON/PDF downloads are reserved for later work, including Stage 5C. GitHub Pages publishing is not configured; the existing repository contains push/pull-request CI only. See [COUNTEREXAMPLE_SEARCH.md](COUNTEREXAMPLE_SEARCH.md) for core API details and [MINIMIZATION_AND_PROOF.md](MINIMIZATION_AND_PROOF.md) for the independent evidence APIs.
+Proof of Impact is available in Stage 5C-1. Its separate explicit action consumes the currently selected witness and saved contracts/options, reduces it through the existing Stage 4B API, and verifies the returned proof. Choosing a different witness, rerunning search, editing search options, valid Apply, Reset, and a different experiment clear old proof and verification; pending drafts and ordinary navigation preserve still-valid evidence. Downloads and proof import remain unavailable until later work, including Stage 5C-2. GitHub Pages publishing is not configured; the existing repository contains push/pull-request CI only. See [PROOF_VIEWER_UI.md](PROOF_VIEWER_UI.md) for the viewer, [COUNTEREXAMPLE_SEARCH.md](COUNTEREXAMPLE_SEARCH.md) for search API details, and [MINIMIZATION_AND_PROOF.md](MINIMIZATION_AND_PROOF.md) for the independent evidence APIs.
