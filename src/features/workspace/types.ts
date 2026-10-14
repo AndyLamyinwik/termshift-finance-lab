@@ -7,6 +7,7 @@ import type { SearchIssue, SearchOptions, SearchReport } from '../../search'
 import type { ContractDraft, DraftIssue } from '../financial-diff/drafts'
 import type { SearchOptionsDraft } from '../hunter/options'
 import type { MinimizationOptionsDraft } from '../proof-viewer/options'
+import type { PortableIssue } from '../portable-evidence/portable'
 
 export type WorkspaceView = 'dashboard' | 'financial-diff' | 'counterexample-hunter' | 'proof-of-impact'
 export type ContractSide = 'old' | 'new'
@@ -24,6 +25,13 @@ export type ProofState =
   | { status: 'idle' }
   | { status: 'success'; proof: ImpactProof; verification: ImpactProofVerification }
   | { status: 'failure'; phase: 'creation' | 'verification'; proof: ImpactProof | null; issues: MinimizationIssue[] }
+
+export type EvidenceView = 'workspace' | 'imported'
+export type ImportedProofState =
+  | { status: 'idle' }
+  | { status: 'reading'; fileName: string }
+  | { status: 'success'; fileName: string; proof: ImpactProof; verification: ImpactProofVerification }
+  | { status: 'failure'; phase: 'import' | 'verification'; fileName: string | null; proof: ImpactProof | null; issues: PortableIssue[] }
 
 export interface WorkspaceController {
   selectedExperimentId: string
@@ -48,6 +56,9 @@ export interface WorkspaceController {
   proofState: ProofState
   minimizationOptionsDraft: MinimizationOptionsDraft
   minimizationIssues: DraftIssue[]
+  evidenceView: EvidenceView
+  importedProofState: ImportedProofState
+  exportIssues: PortableIssue[]
   selectExperiment(id: string): void
   setActiveView(view: WorkspaceView): void
   updateDraft(side: ContractSide, draft: ContractDraft): void
@@ -60,4 +71,10 @@ export interface WorkspaceController {
   generateProof(): void
   verifyProofAgain(): void
   clearProof(): void
+  setEvidenceView(view: EvidenceView): void
+  importProofFile(file: File | undefined): Promise<void>
+  verifyImportedProofAgain(): void
+  clearImportedProof(): void
+  downloadProofJson(): void
+  downloadMarkdownReport(): void
 }

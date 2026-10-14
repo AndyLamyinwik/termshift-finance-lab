@@ -1,6 +1,6 @@
 # Proof of Impact Viewer
 
-Stage 5C-1 connects the existing Stage 4B Proof of Impact API to the shared React workspace. It creates and verifies evidence from a selected real Counterexample Hunter witness. It does not implement a replacement proof schema, financial formula, search, or minimization algorithm.
+Stage 5C-1 connects the existing Stage 4B Proof of Impact API to the shared React workspace. Stage 5C-2 adds full JSON and readable Markdown downloads plus independent verification of local saved proofs. The viewer uses the existing schema, creator, verifier, report formatter, and financial APIs throughout.
 
 ## Generate and inspect a proof
 
@@ -12,11 +12,23 @@ Stage 5C-1 connects the existing Stage 4B Proof of Impact API to the shared Reac
 6. Inspect Verification Overview, Original Witness versus Minimized Witness, accepted Reduction Timeline, financial explanation, and limitations.
 7. Choose **Verify Again** to recheck the saved proof, or **Clear Proof** to clear evidence without changing the search or budget draft.
 
-All four views share the selected experiment and applied workspace. The page remains available before search, but generation requires a valid selected witness. Its empty state says:
+Generation takes place in **Current Workspace Proof**. All four views share the selected experiment and applied workspace. The page remains available before search, but generation requires a valid selected witness. Its empty state says:
 
 > No witness selected. Run a counterexample search and select a witness first.
 
 The **Go to Counterexample Hunter** control navigates back to the operational search view. Navigation, budget entry, generation, verification, clearing, details controls, and Show More are native keyboard-operable controls with visible focus. The desktop comparison uses side-by-side panels and stacks on small screens.
+
+## Portable Evidence Actions
+
+**Evidence Actions** selects either **Current Workspace Proof** or **Imported Proof**. Only the selected source's verified proof enables **Download JSON** and **Download Markdown**. JSON download freshly calls `verifyImpactProof` and preserves the complete version-1 proof; Markdown download calls the existing `formatImpactReport` and uses its verified financial report. Failures expose formal structured issues and do not dispatch a download. The native filenames are `termshift-impact-proof.json` and `termshift-impact-report.md`.
+
+**Import Proof JSON** uses a native local file picker. Import needs no selected Hunter witness. The file must be at most 5 MiB, decode as strict UTF-8, parse as JSON, satisfy the official ImpactProofSchema, and pass independent `verifyImpactProof`. The picker hint does not make filenames or MIME types trusted. Import automatically opens Imported Evidence and displays its own contracts and witness metadata, without assigning the current experiment's name.
+
+> Imported proof verified independently against its embedded contracts.
+
+The same Overview, Before/After Comparison, Reduction Timeline, Financial Explanation, and Limitations components display the selected proof source. Only one evidence body is mounted at a time. **Verify Imported Proof Again** recomputes the saved imported evidence; **Clear Imported Proof** clears imported evidence and pending reads without deleting current Workspace Proof. Import failure clears the previous imported Verified state and financial success panels while preserving current workspace data. Current Apply, Reset, experiment changes, or search invalidations do not rewrite independently imported contracts.
+
+JSON can be independently reverified; Markdown is convenient to read and does not replace the complete JSON. Neither file has a digital signature or authenticated authorship. The 5 MiB file limit is separate from financial safe-integer limits. No upload, remote resource, browser persistence, HTML/Markdown execution, or PDF pipeline is involved. See [PORTABLE_EVIDENCE.md](PORTABLE_EVIDENCE.md) for the full validation and isolation contract.
 
 ## Witness and SearchSnapshot
 
@@ -34,7 +46,7 @@ createImpactProof(
 
 Proof input does not come from Financial Diff's raw text or a previous search context. Pending Financial Diff edits produce a visible reminder and do not change saved evidence until valid Apply. Generation and verification do not mutate fixtures or the original search result. The Dashboard Scenario and Hunter's independent Search Starting Scenario keep their existing meanings; proof reduction starts from the actual selected witness.
 
-All settings, contracts, reports, and proof state exist only in the current page's React memory. There is no LocalStorage, SessionStorage, IndexedDB, remote storage, account, or URL persistence. Reload restores the original Waiver Trap Dashboard and clears previous results.
+All settings, contracts, reports, and current/imported proof state exist only in the current page's React memory. There is no LocalStorage, SessionStorage, IndexedDB, remote storage, account, or URL persistence. Reload restores the original Waiver Trap Dashboard and clears previous results. A downloaded local file remains available under the user's control and can be explicitly imported again.
 
 ## Minimization budget and limits
 
@@ -101,7 +113,7 @@ Initially only the first ten steps are mounted. **Show More** exposes the next t
 | Switch views, select the same experiment, or reselect the same witness | Preserve still-valid proof and verification. |
 | Clear Proof | Clear proof and verification only; retain current search context and budget draft. |
 
-An invalidated proof cannot retain a Verified label. Users must rerun the required search and/or Generate Proof action for the current inputs. A page switch alone is not an input change and does not discard evidence.
+This table applies to Current Workspace Proof. Imported Evidence is isolated from those calculation inputs and remains unchanged by Apply, Reset, experiment/witness changes, search controls, or current proof generation/clearing. An invalidated current proof cannot retain a Verified label. Users must rerun the required search and/or Generate Proof action for the current inputs. A page switch alone is not an input change and does not discard either evidence source.
 
 ## Reproduce the three experiments
 
@@ -125,9 +137,9 @@ These are reproducible calculations over synthetic inputs, not values embedded i
 
 ## Current scope and checks
 
-Stage 5C-1 is entirely local, with no AI/LLM, runtime network request, banking API, backend, database, login, tracking, cloud storage, or remote assets. It adds no dependency. Stage 5C-2 downloads and proof import are unavailable: there is no JSON/Markdown/PDF download, file import, or PDF generator. GitHub Pages deployment remains reserved for Stage 6; existing CI verifies pushes and pull requests only.
+Stages 5C-1 and 5C-2 are entirely local, with no AI/LLM, runtime network request, banking API, backend, database, login, tracking, cloud storage, or remote assets. They add no dependency. Stage 5C-2 provides native complete JSON/official Markdown downloads and strict independent local JSON import. PDF generation, Release creation, GitHub Pages deployment, and later stages remain outside its scope; existing CI verifies pushes and pull requests only.
 
-The 945 previous tests remain in place. New tests cover canonical budget parsing, formal schema limits, real searched-witness creation and verification across all experiments, positive/negative deltas, preserved nonzero direction, bounded timeline expansion, maxChecks 1, relevant invalidations, draft/view persistence, Verify Again, structured failures, forged financial value rejection, immutable fixtures/reports, and no external API calls. Responsive browser validation targets 320, 390, 768, and 1440px.
+Stage 5C-1's budget and viewer tests cover canonical parsing, real searched-witness creation/verification, positive/negative deltas, direction preservation, bounded timeline expansion, budget exhaustion, current invalidation, draft/view persistence, verification retries, structured errors, forged values, immutable inputs, and no external calls. Stage 5C-2 preserves all 1,039 prior tests and adds real File/Blob/React DOM coverage for round trips, independent import, tamper/size/UTF-8/JSON rejection, races, clear/retry behavior, workspace isolation, native download cleanup, safe text, accessibility, and no runtime network or browser storage. Responsive browser validation targets 320, 390, 768, and 1440px.
 
 Run the existing CI sequence locally:
 
@@ -139,4 +151,4 @@ npm test
 npm run build
 ```
 
-See [COUNTEREXAMPLE_UI.md](COUNTEREXAMPLE_UI.md) for search controls and coverage, [MINIMIZATION_AND_PROOF.md](MINIMIZATION_AND_PROOF.md) for core evidence contracts, and [ARCHITECTURE.md](ARCHITECTURE.md) for workspace/module boundaries.
+See [COUNTEREXAMPLE_UI.md](COUNTEREXAMPLE_UI.md) for search controls and coverage, [PORTABLE_EVIDENCE.md](PORTABLE_EVIDENCE.md) for local files and independent evidence, [MINIMIZATION_AND_PROOF.md](MINIMIZATION_AND_PROOF.md) for core evidence contracts, and [ARCHITECTURE.md](ARCHITECTURE.md) for workspace/module boundaries.

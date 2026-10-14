@@ -1,18 +1,8 @@
-import type { MinimizationIssue } from '../../minimizer'
-import type { ImpactProof } from '../../proof'
-import { CalculationDetails } from '../dashboard/CalculationDetails'
 import { formatDeltaCents } from '../dashboard/format'
+import { EvidenceActions, ImportedEvidence } from '../portable-evidence/EvidenceActions'
 import { ExperimentSelector, WorkspaceNotice } from '../workspace/WorkspacePresentation'
 import type { WorkspaceController } from '../workspace/types'
-import { BeforeAfterComparison } from './BeforeAfterComparison'
-import { ProofOverview } from './ProofOverview'
-import { ReductionTimeline } from './ReductionTimeline'
-
-function ProofIssues({ issues }: { issues: MinimizationIssue[] }) {
-  return <ul className="error-list">{issues.map((issue, index) => <li key={`${issue.code}-${index}`}>
-    <strong>{issue.code}</strong> · {issue.path.length > 0 ? issue.path.join('.') : '(root)'} · {issue.message}
-  </li>)}</ul>
-}
+import { ProofIssues, ProofPresentation } from './ProofPresentation'
 
 function MinimizationControls({ workspace, hasWitness }: { workspace: WorkspaceController; hasWitness: boolean }) {
   const issues = workspace.minimizationIssues
@@ -40,35 +30,13 @@ function MinimizationControls({ workspace, hasWitness }: { workspace: WorkspaceC
   )
 }
 
-function FinancialExplanation({ proof }: { proof: ImpactProof }) {
-  return (
-    <section className="proof-explanation" aria-labelledby="proof-explanation-title">
-      <div className="section-heading"><div><p className="eyebrow">Existing engine traces</p><h2 id="proof-explanation-title">Financial Explanation</h2></div></div>
-      <p>Calculation Details below shows the minimized witness’s recorded fee decisions and charges for both saved contracts.</p>
-      <CalculationDetails comparison={proof.minimizedComparison} />
-      <dl className="proof-context-grid">
-        <div><dt>Money Unit</dt><dd>{proof.calculationPolicy.moneyUnit}</dd></div>
-        <div><dt>Rate Unit</dt><dd>{proof.calculationPolicy.rateUnit}</dd></div>
-        <div><dt>Rounding</dt><dd>{proof.calculationPolicy.rounding}</dd></div>
-        <div><dt>Dates</dt><dd>{proof.calculationPolicy.dates}</dd></div>
-        <div><dt>Cost Difference</dt><dd>{proof.calculationPolicy.delta}</dd></div>
-        <div><dt>Effective Date</dt><dd>{proof.calculationPolicy.effectiveDate}</dd></div>
-      </dl>
-    </section>
-  )
-}
-
-export default function ProofViewer({ workspace }: { workspace: WorkspaceController }) {
+function CurrentWorkspaceProof({ workspace }: { workspace: WorkspaceController }) {
   const snapshot = workspace.searchSnapshot
   const witness = snapshot?.searchReport.witnesses.find((item) => item.candidateId === snapshot.selectedWitnessId)
   const state = workspace.proofState
   return (
-    <main id="proof-of-impact" className="dashboard-main proof-main" tabIndex={-1}>
-      <div className="dashboard-titlebar">
-        <div><p className="eyebrow">Financial Contract Counterexample Lab</p><h1>Proof of Impact</h1>
-          <p className="dashboard-intro">Reduce a selected counterexample and verify the saved financial evidence using the existing local engine.</p></div>
-        <span className="status-pill">Computed locally</span>
-      </div>
+    <section className="workspace-evidence" aria-labelledby="workspace-evidence-title">
+      <div className="section-heading"><div><p className="eyebrow">Applied contracts and selected witness</p><h2 id="workspace-evidence-title">Current Workspace Proof</h2></div></div>
       <section className="panel experiment-section" aria-labelledby="experiment-title"><ExperimentSelector workspace={workspace} /></section>
       <WorkspaceNotice workspace={workspace} />
       {witness && snapshot ? <section className="panel proof-selected" aria-labelledby="proof-selected-title">
@@ -96,19 +64,24 @@ export default function ProofViewer({ workspace }: { workspace: WorkspaceControl
         <ProofIssues issues={state.issues} />
         {state.proof && <button className="button-secondary" type="button" onClick={workspace.verifyProofAgain}>Verify Again</button>}
       </section>}
-      {state.status === 'success' && <>
-        <ProofOverview proof={state.proof} verification={state.verification} experiment={workspace.selectedExperiment} />
-        <div className="editor-actions proof-actions"><button className="button-secondary" type="button" onClick={workspace.verifyProofAgain}>Verify Again</button>
+      {state.status === 'success' && <ProofPresentation proof={state.proof} verification={state.verification} experiment={workspace.selectedExperiment}
+        actions={<div className="editor-actions proof-actions"><button className="button-secondary" type="button" onClick={workspace.verifyProofAgain}>Verify Again</button>
           <button className="button-secondary" type="button" onClick={workspace.clearProof}>Clear Proof</button></div>
-        <BeforeAfterComparison proof={state.proof} />
-        <ReductionTimeline key={`${state.proof.witnessSource.candidateId}-${state.proof.minimizationBudget.maxChecks}-${state.proof.minimizationBudget.checksPerformed}`} proof={state.proof} />
-        <FinancialExplanation proof={state.proof} />
-        <section className="panel proof-limitations" aria-labelledby="proof-limitations-title">
-          <h2 id="proof-limitations-title">Limitations</h2>
-          <ul>{state.proof.limitations.map((limitation) => <li key={limitation}>{limitation}</li>)}</ul>
-          <p>This viewer operates entirely in page memory. Reloading clears evidence. Downloads and proof import are reserved for Stage 5C-2.</p>
-        </section>
-      </>}
+        } />}
+    </section>
+  )
+}
+
+export default function ProofViewer({ workspace }: { workspace: WorkspaceController }) {
+  return (
+    <main id="proof-of-impact" className="dashboard-main proof-main" tabIndex={-1}>
+      <div className="dashboard-titlebar">
+        <div><p className="eyebrow">Financial Contract Counterexample Lab</p><h1>Proof of Impact</h1>
+          <p className="dashboard-intro">Reduce a selected counterexample, verify its evidence, or independently verify a local Proof JSON file.</p></div>
+        <span className="status-pill">Computed locally</span>
+      </div>
+      <EvidenceActions workspace={workspace} />
+      {workspace.evidenceView === 'imported' ? <ImportedEvidence workspace={workspace} /> : <CurrentWorkspaceProof workspace={workspace} />}
     </main>
   )
 }

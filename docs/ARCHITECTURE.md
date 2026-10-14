@@ -20,13 +20,15 @@ Stage 5B-2 adds Counterexample Hunter to the same workspace. The view validates 
 
 Stage 5C-1 adds Proof of Impact Viewer to the same workspace. An explicit Generate Proof action takes the current search snapshot's contracts, selected witness, and numeric options, calls the unchanged Stage 4B creator, then calls its verifier before displaying Verified. The view renders original/reduced evidence, actual verification and budget information, and accepted reductions in bounded batches. View changes and pending drafts preserve valid proof state; relevant input changes clear it. No core algorithms, fixtures, or dependencies change.
 
-Stage 5C-2 downloads and proof import are not provided. Structural rule comparison, scenario editing, rule-category additions/removals, JSON/Markdown/PDF downloads, and deployment remain outside this stage. GitHub Pages publishing belongs to Stage 6.
+Stage 5C-2 adds portable evidence using the existing Proof Schema and APIs: complete verified JSON downloads, official Markdown reports, and bounded local-file import followed by independent verification. Imported evidence has a separate state boundary inside the same workspace hook and never becomes an applied contract, SearchSnapshot, or fabricated Hunter witness. Current and imported evidence reuse the same proof presentation with explicit labels. No dependency, financial formula, schema, core verifier, or fixture changes.
+
+Structural rule comparison, scenario editing, rule-category additions/removals, PDF generation, deployment, and Release creation remain outside Stage 5C-2. GitHub Pages publishing belongs to Stage 6.
 
 ## Static frontend
 
 Vite serves the application during local development and produces static HTML, CSS, and JavaScript assets for production. The production application runs in the browser and does not require an application server.
 
-React components are responsible for presentation and the shared workspace's selection, applied-contract, text-draft, search-report, witness-selection, minimization-control, proof/verification, and view state. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
+React components are responsible for presentation and the shared workspace's selection, applied-contract, text-draft, search-report, witness-selection, minimization-control, current/imported proof verification, and view state. Native FileReader and Blob downloads form the local file boundary. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
 
 The project remains one frontend package; a monorepo, Next.js application, and backend services are outside this architecture.
 
@@ -48,8 +50,8 @@ Fetching the application's own static assets is part of normal page loading. Dep
 | Module | Responsibility |
 | --- | --- |
 | `App.tsx` | Own the workspace hook and semantic navigation for the four operational views. |
-| `workspace/useWorkspace.ts` | Hold shared state, clone originals on selection/reset, validate drafts on Apply, memoize comparisons, run search and proof APIs on command, and invalidate related evidence. |
-| `workspace/types.ts` | Declare the workspace controller, view/contract-side types, successful SearchSnapshot, and explicit idle/success/failure ProofState. |
+| `workspace/useWorkspace.ts` | Hold shared state, validate Apply, run existing search/proof APIs, invalidate current evidence, and independently manage imported evidence with latest-selection guards and export actions. |
+| `workspace/types.ts` | Declare the workspace controller, SearchSnapshot, current ProofState, separate ImportedProofState, and evidence-source selection. |
 | `workspace/WorkspacePresentation.tsx` | Share the experiment selector, draft/applied status notices, comparison summaries, traces, and structured engine error display. |
 | `dashboard/Dashboard.tsx` | Present the selected experiment and shared applied-contract results. |
 | `ComparisonPanels.tsx` | Render old/new totals, signed cost difference, three fee categories, readable values, and CSS comparison bars from a `Comparison`. |
@@ -65,10 +67,13 @@ Fetching the application's own static assets is part of normal page loading. Dep
 | `hunter/options.ts` | Validate canonical text through exact shared parsers and the formal SearchOptions validator; create an independent validated neutral Search Base. |
 | `proof-viewer/ProofViewer.tsx` | Present selected snapshot context, empty state, validated minimization controls, explicit Generate/Verify Again/Clear actions, structured issues, explanations, and limitations. |
 | `proof-viewer/ProofOverview.tsx` | Present actual proof versions, provenance, delta, checks/budget/termination, and verified comparison count. |
+| `proof-viewer/ProofPresentation.tsx` | Reuse the overview, comparison, timeline, traces, limitations, and structured issue renderer for either evidence source; imported data uses its embedded metadata. |
 | `proof-viewer/BeforeAfterComparison.tsx` | Compare actual original/minimized Scenario counts, amounts, obligations, delays, and Comparison totals. |
 | `proof-viewer/ReductionTimeline.tsx` | Show accepted reductions in ten-step batches with before/after summaries and accepted comparison evidence. |
 | `proof-viewer/scenarioPresentation.ts` | Summarize actual purchase totals with integer arithmetic and payment delays with the existing Gregorian helpers; supply display-only scenario/objective labels. |
 | `proof-viewer/options.ts` | Strictly validate required maxChecks text with the existing exact integer parser and official MinimizationOptionsSchema; derive the default budget from that schema. |
+| `portable-evidence/EvidenceActions.tsx` | Present source selection, verified JSON/Markdown downloads, native file import, imported verification/clear controls, and export errors. |
+| `portable-evidence/portable.ts` | Read bounded native file bytes, strictly decode UTF-8, parse JSON, call official proof validation/verification, prepare complete JSON or official Markdown, and dispatch cleaned-up native Blob downloads. |
 | `App.css` and `index.css` | Provide the local dark visual system, responsive layout, focus treatment, and reduced-motion support. |
 
 The financial data flow is `src/scenarios/` fixture → independent working contract copies → `compareContracts(workingOldContract, workingNewContract, selectedExperiment.scenario)` → `Comparison` → summaries, category bars, and traces. Fixture objects supply inputs and descriptions rather than predetermined answers. The scenario is identical for both evaluations and is never edited by this UI. Selection and valid Apply operations recalculate locally without editing fixtures, initiating a network request, or showing a simulated network loading state.
@@ -232,7 +237,19 @@ The accepted-step timeline reads only `proof.reductionSteps`; rejected candidate
 | Reset to Original or choose a different experiment | Restore original contracts, default search controls, and maxChecks 200; clear result, selection, proof, and errors. |
 | Pending Financial Diff edits, invalid Apply, same-witness selection, or view navigation | Preserve still-valid snapshot and proof; explain when unapplied text differs from saved contracts. |
 
-All proof state lives in the existing React workspace, with no parallel store or LocalStorage, SessionStorage, IndexedDB, URL, file, or server persistence. Reload clears it. Verification establishes arithmetic, Scenario, and reduction consistency with the current engine; it is not a digital signature, immutable provenance guarantee, historical-search authentication, or regulatory certification. `strategy-complete` refers only to the defined reduction probes and search bounds, not global minimality. Stage 5C-2 proof downloads/import and PDF generation are not implemented. See [PROOF_VIEWER_UI.md](PROOF_VIEWER_UI.md).
+All proof state lives in the existing React workspace, with no automatic browser, URL, or server persistence. Reload clears it; explicit Stage 5C-2 downloads save files under user control. Verification establishes arithmetic, Scenario, and reduction consistency with the current engine; it is not a digital signature, immutable provenance guarantee, historical-search authentication, or regulatory certification. `strategy-complete` refers only to the defined reduction probes and search bounds, not global minimality. See [PROOF_VIEWER_UI.md](PROOF_VIEWER_UI.md).
+
+## Portable evidence and import isolation
+
+The existing `useWorkspace` hook holds separate `ImportedProofState` and `evidenceView` state alongside current ProofState. Imports do not call contract Apply, overwrite SearchSnapshot, create a Hunter Witness, or edit fixtures. Current contract changes, Reset, selection changes, search, and generation retain independently verified imported evidence; its embedded contracts remain authoritative. Clear Imported Proof clears only imported state, while Clear Proof keeps its current-workspace meaning. Reload clears both.
+
+Evidence Actions selects Current Workspace Proof or Imported Proof. Only the selected proof's success state enables downloads. JSON preparation calls `verifyImpactProof` again, then serializes the entire verified proof with `JSON.stringify(proof, null, 2)`. Markdown preparation calls only the unchanged `formatImpactReport`, which verifies before formatting. Both preserve official failure issues instead of creating a fake report. Downloads use a native Blob and temporary anchor, remove the anchor in `finally`, and revoke the Object URL on the next event-loop task after click dispatch. There is no upload, fetch, cloud storage, or PDF pipeline.
+
+File import accepts a native File with an inclusive 5 MiB byte limit. It rejects missing or oversized files before reading, reads an ArrayBuffer through FileReader, checks actual byte length again, uses a fatal UTF-8 TextDecoder, and catches JSON syntax exceptions. `ImpactProofSchema.safeParse` enforces the unchanged strict root/nested structures and version 1; only then does `verifyImpactProof` recompute fees and enforce reduction constraints. File extensions and MIME types are convenience hints, never proof authority. The 5 MiB limit bounds file allocation and is independent of USD safe-integer monetary bounds.
+
+Imported state distinguishes idle, reading, import failure, verification failure, and success. Starting another read removes prior success immediately. A monotonically advancing request ref ignores old read successes, failures, or exceptions after a newer selection; clear and unmount invalidate pending requests. Only the verified proof, verifier payload, and display filename are retained, without raw JSON text, bytes, File handles, or unnecessary content copies. Verify Imported Proof Again calls the official verifier against saved embedded evidence without reusing a self-claimed status.
+
+Only the selected evidence body is mounted. The imported body reuses ProofOverview, BeforeAfterComparison, ReductionTimeline, Financial Explanation, and limitations. It uses embedded Contract IDs and witness metadata without attaching the active experiment's name. The interface explicitly states: “Imported proof verified independently against its embedded contracts.” React's default text rendering displays imported names and filenames as inert content. It does not interpret HTML, execute JavaScript/Markdown, or load external URLs, images, or scripts from imported data. No LocalStorage, SessionStorage, or IndexedDB is used. See [PORTABLE_EVIDENCE.md](PORTABLE_EVIDENCE.md).
 
 ## Counterexample minimization and impact evidence
 
@@ -284,10 +301,12 @@ Stage 5B-2 preserves the existing suites and updates the obsolete Hunter Planned
 
 Stage 5C-1 preserves all 945 existing tests and updates the obsolete Proof Planned/navigation expectation. New pure tests validate exact minimization-budget drafts, schema defaults, boundaries, arbitrary unknown input, immutability, JSON-safe results, and determinism. React Testing Library uses real Stage 4A searched witnesses and Stage 4B creation/verification for the three formal experiments, plus positive/negative directions, budget exhaustion, accepted-step pagination, invalidations, pending drafts, repeated verification, structured failures, forged fee rejection, frozen data, local-only operation, and accessible controls. Responsive browser checks target the same four widths. No financial-core or fixture tests are removed.
 
+Stage 5C-2 preserves the 1,039 existing tests. Real File/Blob tests exercise complete JSON round trips, official Markdown output, strict UTF-8/JSON/schema checks, tampered fees/reductions/obligations, exact file-size boundaries, untrusted filenames/MIME, and native Object URL cleanup. React DOM tests use real evidence alongside controlled failure/race cases to verify source separation, stale-read rejection, current workspace preservation, retry/clear behavior, safe text rendering, accessibility, and no runtime requests or browser persistence. Responsive browser checks target 320, 390, 768, and 1440px. Runtime dependencies, proof format, financial cores, and formal fixtures remain unchanged.
+
 GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
 ## Future deployment target
 
 The intended hosting target is GitHub Pages for the public `termshift-finance-lab` repository. Vite's base path is configured as `/termshift-finance-lab/` so generated asset URLs support that repository path.
 
-The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are reserved for Stage 6 and are not configured by Stage 5C-1.
+The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are not configured by Stage 5C-2.

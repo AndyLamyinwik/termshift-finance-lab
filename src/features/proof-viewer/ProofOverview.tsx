@@ -1,23 +1,28 @@
 import type { ImpactProof, ImpactProofVerification } from '../../proof'
 import { formatDeltaCents } from '../dashboard/format'
 
-export function ProofOverview({ proof, verification, experiment }: {
+export function ProofOverview({ proof, verification, experiment, imported = false }: {
   proof: ImpactProof
   verification: ImpactProofVerification
-  experiment: { id: string; name: string }
+  experiment?: { id: string; name: string }
+  imported?: boolean
 }) {
   const budget = proof.minimizationBudget
   return (
     <section className="panel proof-overview" aria-labelledby="proof-overview-title">
       <div className="section-heading"><div><p className="eyebrow">Recomputed evidence</p><h2 id="proof-overview-title">Verification Overview</h2></div></div>
       <dl className="proof-context-grid">
-        <div><dt>Verification Status</dt><dd className="proof-verified">Verified</dd></div>
+        <div><dt>Verification Status</dt><dd className="proof-verified">{imported ? 'Verified imported proof' : 'Verified'}</dd></div>
         <div><dt>Verified Comparisons</dt><dd>{verification.verifiedComparisons}</dd></div>
         <div><dt>Proof Schema Version</dt><dd>{proof.proofSchemaVersion}</dd></div>
         <div><dt>Engine Version</dt><dd>{proof.engineVersion}</dd></div>
         <div><dt>Minimizer Version</dt><dd>{proof.minimizerVersion}</dd></div>
-        <div><dt>Experiment</dt><dd>{experiment.name}</dd></div>
-        <div><dt>Experiment ID</dt><dd>{experiment.id}</dd></div>
+        {experiment && <>
+          <div><dt>Experiment</dt><dd>{experiment.name}</dd></div>
+          <div><dt>Experiment ID</dt><dd>{experiment.id}</dd></div>
+        </>}
+        <div><dt>Old Contract Name</dt><dd>{proof.oldContract.name}</dd></div>
+        <div><dt>New Contract Name</dt><dd>{proof.newContract.name}</dd></div>
         <div><dt>Old Contract ID</dt><dd>{proof.oldContract.id}</dd></div>
         <div><dt>New Contract ID</dt><dd>{proof.newContract.id}</dd></div>
         <div><dt>Witness Candidate ID</dt><dd>{proof.witnessSource.candidateId}</dd></div>
@@ -33,7 +38,8 @@ export function ProofOverview({ proof, verification, experiment }: {
       <p>Verification rechecks arithmetic, scenarios and reduction constraints against the saved contracts.
         Verified describes this evidence’s calculation consistency.</p>
       <p>Strategy completion means the implemented reduction strategy finished within this budget. It does not prove a globally minimal counterexample.</p>
-      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">Proof verification passed. {verification.verifiedComparisons} financial comparisons verified.</p>
+      {imported ? <p role="status" aria-live="polite" aria-atomic="true">Imported proof verified independently against its embedded contracts.</p>
+        : <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">Proof verification passed. {verification.verifiedComparisons} financial comparisons verified.</p>}
     </section>
   )
 }

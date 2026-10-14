@@ -332,6 +332,25 @@ h1 { margin: 8px 0 10px; font-size: clamp(28px, 3vw, 40px); font-weight: 550; li
 .button-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .button-primary:disabled:hover { background: #b6e5b8; }
 
+.evidence-actions { display: grid; gap: 18px; }
+.evidence-actions .section-heading { margin-bottom: 0; }
+.evidence-actions > p, .imported-evidence > p { margin: 0; color: #b3c5b8; font-size: 12px; line-height: 1.8; }
+.evidence-view-switch { display: flex; flex-wrap: wrap; gap: 12px; }
+.evidence-view-switch [aria-pressed="true"] { border-color: #b6e5b8; color: #e6f1e8; background: #233b2b; }
+.evidence-downloads, .evidence-import-actions { margin: 0; }
+.evidence-file-field { margin: 4px 0; }
+.evidence-file-field input { max-width: 100%; min-width: 0; overflow: hidden; }
+.evidence-file-field input::file-selector-button { margin-right: 12px; padding: 7px 10px; border: 1px solid #506957; border-radius: 4px; background: #18251d; color: #d6e7db; font: inherit; cursor: pointer; }
+.evidence-file-name { overflow-wrap: anywhere; }
+.evidence-export-error { margin: 0; padding: 16px; border-radius: 5px; }
+.evidence-export-error h3 { margin: 0; color: #f2cac3; font-size: 15px; font-weight: 500; }
+.workspace-evidence > section, .workspace-evidence > .proof-controls,
+.imported-evidence > section, .workspace-evidence > .proof-actions { margin-bottom: 24px; }
+.workspace-evidence > .section-heading, .imported-evidence > .section-heading { margin-bottom: 24px; }
+.imported-evidence > p { margin: 0 0 20px; }
+.button-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+.button-secondary:disabled:hover { border-color: #506957; color: #c4d9cc; }
+
 @media (max-width: 1100px) {
   .app-shell { padding: 0 28px; }
   .app-layout { grid-template-columns: 160px minmax(0, 1fr); }

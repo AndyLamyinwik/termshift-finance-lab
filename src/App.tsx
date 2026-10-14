@@ -74,7 +74,7 @@ function App() {
             Synthetic financial experiments for research and education. Not financial advice.
           </p>
         </div>
-        <span>Stage 5C-1 · Local impact evidence</span>
+        <span>Stage 5C-2 · Portable impact evidence</span>
       </footer>
     </div>
   )

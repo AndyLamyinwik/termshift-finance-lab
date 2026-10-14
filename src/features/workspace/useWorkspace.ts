@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { compareContracts } from '../../engine'
 import { experiments } from '../../scenarios'
 import type { ExperimentFixture } from '../../scenarios'
@@ -9,7 +9,11 @@ import type { ContractDraft } from '../financial-diff/drafts'
 import { createSearchBase, createSearchOptionsDraft, parseSearchOptionsDraft } from '../hunter/options'
 import type { SearchOptionsDraft } from '../hunter/options'
 import { createMinimizationOptionsDraft, parseMinimizationOptionsDraft } from '../proof-viewer/options'
-import type { ContractSide, WorkspaceController, WorkspaceView } from './types'
+import {
+  downloadTextFile, prepareMarkdownExport, prepareProofJsonExport, readAndVerifyProofFile,
+} from '../portable-evidence/portable'
+import type { PortableIssue, PortableResult, TextDownload } from '../portable-evidence/portable'
+import type { ContractSide, EvidenceView, ImportedProofState, WorkspaceController, WorkspaceView } from './types'
 
 type WorkspaceState = Pick<WorkspaceController,
   'selectedExperimentId' | 'workingOldContract' | 'workingNewContract' | 'activeView'
@@ -39,6 +43,12 @@ function initialState(experiment: ExperimentFixture, activeView: WorkspaceView):
 /** One in-memory workspace; raw form text never enters the calculation engine. */
 export function useWorkspace(): WorkspaceController {
   const [state, setState] = useState(() => initialState(experiments[0], 'dashboard'))
+  // Imported evidence is independent of all current experiment/search resets.
+  const [importedProofState, setImportedProofState] = useState<ImportedProofState>({ status: 'idle' })
+  const [evidenceView, setEvidenceViewState] = useState<EvidenceView>('workspace')
+  const [exportIssues, setExportIssues] = useState<PortableIssue[]>([])
+  const importRequest = useRef(0)
+  useEffect(() => () => { importRequest.current += 1 }, [])
   const selectedExperiment = experiments.find((item) => item.id === state.selectedExperimentId) ?? experiments[0]
   const comparison = useMemo(() => compareContracts(
     state.workingOldContract, state.workingNewContract, selectedExperiment.scenario,
@@ -173,8 +183,72 @@ export function useWorkspace(): WorkspaceController {
       ? { status: 'success', proof, verification: verification.data }
       : { status: 'failure', phase: 'verification', proof, issues: verification.issues } }))
   }
+  function setEvidenceView(view: EvidenceView) {
+    setEvidenceViewState(view)
+    setExportIssues([])
+  }
+  async function importProofFile(file: File | undefined) {
+    const request = ++importRequest.current
+    setEvidenceViewState('imported')
+    setExportIssues([])
+    setImportedProofState(file ? { status: 'reading', fileName: file.name } : { status: 'idle' })
+    try {
+      const result = await readAndVerifyProofFile(file)
+      if (request !== importRequest.current) return
+      setImportedProofState(result.success
+        ? { status: 'success', fileName: file?.name ?? '', proof: result.data.proof, verification: result.data }
+        : { status: 'failure', phase: result.phase, fileName: file?.name ?? null, proof: null, issues: result.issues })
+    } catch {
+      if (request !== importRequest.current) return
+      setImportedProofState({ status: 'failure', phase: 'import', fileName: file?.name ?? null, proof: null,
+        issues: [{ code: 'import_failed', path: [], message: 'Unable to read or verify the local Proof JSON file.' }] })
+    }
+  }
+  function clearImportedProof() {
+    importRequest.current += 1
+    setImportedProofState({ status: 'idle' })
+    setExportIssues([])
+  }
+  function verifyImportedProofAgain() {
+    if ((importedProofState.status !== 'success' && importedProofState.status !== 'failure') || !importedProofState.proof) return
+    importRequest.current += 1
+    setExportIssues([])
+    const proof = importedProofState.proof
+    try {
+      const verified = verifyImpactProof(proof)
+      setImportedProofState(verified.success
+        ? { status: 'success', fileName: importedProofState.fileName ?? '', proof: verified.data.proof, verification: verified.data }
+        : { status: 'failure', phase: 'verification', fileName: importedProofState.fileName, proof, issues: verified.issues })
+    } catch {
+      setImportedProofState({ status: 'failure', phase: 'verification', fileName: importedProofState.fileName, proof,
+        issues: [{ code: 'verification_error', path: [], message: 'Imported proof verification could not complete.' }] })
+    }
+  }
+  function exportEvidence(prepare: (input: unknown) => PortableResult<TextDownload>) {
+    const proof = evidenceView === 'workspace'
+      ? state.proofState.status === 'success' ? state.proofState.proof : null
+      : importedProofState.status === 'success' ? importedProofState.proof : null
+    setExportIssues([])
+    if (!proof) {
+      setExportIssues([{ code: 'proof_not_verified', path: [], message: 'Select a successfully verified proof before downloading evidence.' }])
+      return
+    }
+    try {
+      const prepared = prepare(proof)
+      if (!prepared.success) {
+        setExportIssues(prepared.issues)
+        return
+      }
+      downloadTextFile(prepared.data)
+    } catch {
+      setExportIssues([{ code: 'export_failed', path: [], message: 'Unable to prepare or start the local evidence download. Try downloading again.' }])
+    }
+  }
+  function downloadProofJson() { exportEvidence(prepareProofJsonExport) }
+  function downloadMarkdownReport() { exportEvidence(prepareMarkdownExport) }
   return {
     ...state, selectedExperiment, comparison, searchBase, searchBaseComparison,
+    evidenceView, importedProofState, exportIssues,
     oldModified: JSON.stringify(state.workingOldContract) !== JSON.stringify(selectedExperiment.oldContract),
     newModified: JSON.stringify(state.workingNewContract) !== JSON.stringify(selectedExperiment.newContract),
     hasUnappliedChanges: JSON.stringify(state.draftOldContract) !== JSON.stringify(state.appliedOldDraft)
@@ -182,5 +256,7 @@ export function useWorkspace(): WorkspaceController {
     selectExperiment, setActiveView, updateDraft, applyChanges, resetOriginal,
     updateSearchDraft, runSearch, selectWitness,
     updateMinimizationOptionsDraft, generateProof, verifyProofAgain, clearProof,
+    setEvidenceView, importProofFile, verifyImportedProofAgain, clearImportedProof,
+    downloadProofJson, downloadMarkdownReport,
   }
 }
