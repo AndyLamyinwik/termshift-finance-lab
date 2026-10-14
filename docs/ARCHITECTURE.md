@@ -24,7 +24,7 @@ Stage 5C-2 adds portable evidence using the existing Proof Schema and APIs: comp
 
 Stage 6 adds a GitHub Pages delivery workflow for the existing static application. A main-branch push or an explicit manual run verifies the source, builds `dist/`, attaches static commit metadata, and publishes the artifact through official GitHub Pages Actions. The existing CI remains independent. Delivery does not change financial schemas, formulas, search, minimization, verification, fixtures, or runtime dependencies.
 
-Structural rule comparison, scenario editing, rule-category additions/removals, PDF generation, Release creation, and subsequent stages remain outside Stage 6. Public hosting is a preview before a v1.0 release and does not imply financial regulatory certification.
+Structural rule comparison, scenario editing, rule-category additions/removals, and PDF generation remain outside the implemented product scope. Version tags and GitHub Releases are separate from deployment. Public hosting does not imply financial regulatory certification.
 
 ## Static frontend
 
@@ -306,7 +306,7 @@ Stage 5C-1 preserves all 945 existing tests and updates the obsolete Proof Plann
 
 Stage 5C-2 preserves the 1,039 existing tests. Real File/Blob tests exercise complete JSON round trips, official Markdown output, strict UTF-8/JSON/schema checks, tampered fees/reductions/obligations, exact file-size boundaries, untrusted filenames/MIME, and native Object URL cleanup. React DOM tests use real evidence alongside controlled failure/race cases to verify source separation, stale-read rejection, current workspace preservation, retry/clear behavior, safe text rendering, accessibility, and no runtime requests or browser persistence. Responsive browser checks target 320, 390, 768, and 1440px. Runtime dependencies, proof format, financial cores, and formal fixtures remain unchanged.
 
-GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests through the unchanged CI workflow. The Stage 6 deployment workflow repeats these checks before publishing, preserving the complete 1,160-test Stage 1–5C-2 baseline. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
+GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests through the unchanged CI workflow. The deployment workflow repeats these checks before publishing. The complete Stage 7A suite contains 1,161 tests, including the retained financial, search, minimization, proof, and evidence cases. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
 ## GitHub Pages deployment
 

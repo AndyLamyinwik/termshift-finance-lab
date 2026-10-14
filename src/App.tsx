@@ -35,7 +35,7 @@ function App() {
         </div>
         <span className="development-status">
           <span className="status-dot" aria-hidden="true" />
-          Project in Development
+          v1.0.0
         </span>
       </header>
 
@@ -74,7 +74,7 @@ function App() {
             Synthetic financial experiments for research and education. Not financial advice.
           </p>
         </div>
-        <span>Public Preview · Computed locally</span>
+        <span>v1.0.0 · Computed locally</span>
       </footer>
     </div>
   )

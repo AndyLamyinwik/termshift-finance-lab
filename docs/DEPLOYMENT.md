@@ -1,8 +1,8 @@
 # GitHub Pages deployment
 
-Stage 6 delivers the existing TermShift application as a static GitHub Pages website. It is a public preview before a v1.0 release. Public availability and a Verified proof badge do not imply financial regulatory certification, digital signatures, or authenticated authorship.
+TermShift is delivered as a static GitHub Pages website. Public availability and a Verified proof badge do not imply financial regulatory certification, digital signatures, or authenticated authorship.
 
-The repository is [AndyLamyinwik/termshift-finance-lab](https://github.com/AndyLamyinwik/termshift-finance-lab). Obtain the official public URL from the successful deployment's environment link or Repository Settings → Pages. The README Live Demo link is added only after the public deployment has been verified.
+The repository is [AndyLamyinwik/termshift-finance-lab](https://github.com/AndyLamyinwik/termshift-finance-lab). The verified [Live Demo](https://andylamyinwik.github.io/termshift-finance-lab/) is also available through the successful deployment's environment link or Repository Settings → Pages.
 
 ## Static hosting boundary
 
@@ -45,7 +45,7 @@ An ordinary CI success and a deployment success are separate checks. Publication
 4. Open the deployment's official environment URL and confirm `build-info.json` matches the run's source commit SHA.
 5. Repeat the public smoke checks below. If a newer main run superseded this one, verify the newest successful deployment instead.
 
-A normal main push triggers the same sequence automatically. Do not use force push to redeploy, commit `dist/`, or create a separate Pages branch. This stage does not create a GitHub Release or a v1.0.0 tag.
+A normal main push triggers the same sequence automatically. Do not use force push to redeploy, commit `dist/`, or create a separate Pages branch. Deployment does not create version tags or GitHub Releases; these are separate release operations.
 
 ## Project asset paths
 

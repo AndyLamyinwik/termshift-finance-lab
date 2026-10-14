@@ -1,6 +1,6 @@
 {
   "name": "termshift-finance-lab",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "An explainable financial contract simulation and counterexample discovery engine.",
   "license": "MIT",

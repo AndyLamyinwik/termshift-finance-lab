@@ -5,15 +5,15 @@ import App from './App'
 
 afterEach(cleanup)
 
-describe('Project identity and honest development scope', () => {
-  it('renders the project identity, development status, and local assets', () => {
+describe('Project identity and honest product scope', () => {
+  it('renders the project identity, version, and local assets', () => {
     const { container } = render(<App />)
 
     expect(screen.getByLabelText('TermShift').textContent).toContain('TermShift')
     expect(screen.getByRole('heading', { name: 'Financial contract lab', level: 1 })).toBeTruthy()
     expect(container.textContent).toContain('Financial Contract')
     expect(container.textContent).toContain('Counterexample Lab')
-    expect(screen.getByText('Project in Development')).toBeTruthy()
+    expect(screen.getByText('v1.0.0')).toBeTruthy()
     expect(container.textContent).toContain(
       'An explainable financial contract simulation and counterexample discovery engine.',
     )
@@ -24,11 +24,11 @@ describe('Project identity and honest development scope', () => {
     expect(container.querySelector('script[src], iframe')).toBeNull()
   })
 
-  it('identifies the deployed public preview in the rendered footer', () => {
+  it('identifies the product version in the rendered footer', () => {
     render(<App />)
 
     const footer = screen.getByRole('contentinfo')
-    expect(within(footer).getByText('Public Preview · Computed locally')).toBeTruthy()
+    expect(within(footer).getByText('v1.0.0 · Computed locally')).toBeTruthy()
     expect(within(footer).queryByText('Stage 5C-2 · Portable impact evidence')).toBeNull()
   })
 
