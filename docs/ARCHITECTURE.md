@@ -12,13 +12,15 @@ Stage 4A adds a pure TypeScript, bounded counterexample search over explicit pur
 
 Stage 4B adds a bounded, deterministic minimizer for Stage 4A witnesses and a JSON-safe Proof of Impact module. The minimizer verifies the original witness through the existing comparison engine before reducing it. Proof verification recomputes the financial evidence and checks preserved obligations and reduction constraints; Markdown formatting presents that verified data. The financial schemas, formulas, search implementation, formal fixtures, and homepage remain unchanged.
 
-The homepage remains an informational project overview. Full Financial Diff, Counterexample Hunter, and Proof of Impact interfaces are future work. Stage 4B does not add structural rule comparison, a dashboard, interactive financial tools, deployment, PDF output, or Stage 5 functionality.
+Stage 5A replaces the informational overview with an interactive financial dashboard for the three formal experiments. React state controls the experiment selection, and the existing `compareContracts` API supplies all summary amounts, category comparisons, and calculation traces. The dashboard handles structured engine failures, formats integer cents exactly, and uses local responsive CSS and semantic controls. It does not modify the financial models, formulas, search/minimization APIs, or fixtures.
+
+The dedicated Counterexample Hunter and Proof of Impact interfaces remain planned for Stage 5B and Stage 5C, respectively. The existing search, minimizer, and evidence cores are available as TypeScript APIs. Stage 5A does not add a contract editor, structural rule comparison, interactive search/proof pages, PDF output, or deployment. GitHub Pages publishing belongs to Stage 6.
 
 ## Static frontend
 
 Vite serves the application during local development and produces static HTML, CSS, and JavaScript assets for production. The production application runs in the browser and does not require an application server.
 
-React components are responsible for presentation. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets must be available locally or provided by the operating system.
+React components are responsible for presentation and experiment-selection state. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.
 
 The project remains one frontend package; a monorepo, Next.js application, and backend services are outside this architecture.
 
@@ -28,10 +30,30 @@ The project remains one frontend package; a monorepo, Next.js application, and b
 - No AI, LLM, banking, or financial API integrations.
 - No runtime requests to third-party APIs.
 - No external CDN dependencies, remote fonts, or remote images.
-- Financial rules, inputs, simulations, and explanations will be processed locally in the browser.
+- Financial rules, inputs, simulations, and explanations are processed locally in the browser.
 - Do not fabricate analysis results or present an unimplemented module as operational.
 
 Fetching the application's own static assets is part of normal page loading. Dependency installation, Git operations, and GitHub Actions may use the network for development and build tasks. These allowances do not introduce runtime external services.
+
+## Dashboard presentation
+
+The Stage 5A interface is a single screen without a routing dependency. `App.tsx` retains the TermShift brand, project status, accessible content entry point, and future-module context. Dashboard-specific components live under `src/features/dashboard/`:
+
+| Module | Responsibility |
+| --- | --- |
+| `Dashboard.tsx` | Hold the selected formal experiment in React state, default to The Waiver Trap, call `compareContracts`, and choose successful or structured-error presentation. |
+| `ComparisonPanels.tsx` | Render old/new totals, signed cost difference, three fee categories, readable values, and CSS comparison bars from a `Comparison`. |
+| `CalculationDetails.tsx` | Render expandable old/new `Evaluation.trace` records according to their discriminated `ruleType`. |
+| `format.ts` | Format safe integer USD cents and signed differences exactly, independently of React and financial fee formulas. |
+| `App.css` and `index.css` | Provide the local dark visual system, responsive layout, focus treatment, and reduced-motion support. |
+
+The data flow is `src/scenarios/` fixture → selected React state → `compareContracts(oldContract, newContract, scenario)` → `Comparison` → summaries, category bars, and traces. Fixture objects supply inputs and descriptions rather than predetermined answers. Selection changes recalculate results locally without editing the fixtures, initiating a network request, or showing a simulated network loading state.
+
+The dashboard checks the comparison result's `success` discriminant. On failure, it renders readable issue paths, codes, and messages instead of totals or a substitute zero-cost result. On success, positive, negative, and zero differences have explicit text as well as visual states. A concise live announcement describes changed results; the full trace is outside the live region.
+
+The labeled native experiment selector and native `details`/`summary` controls support keyboard operation. Layouts use flexible columns and wrapping content for small screens, with visible focus states and no fixed reading heights. The fee bars supplement text amounts; their widths are display ratios, and their colors are not the sole means of communicating a difference. Planned modules have explanatory labels rather than inactive controls.
+
+Financial rules are never implemented in the presentation modules. Monthly traces display the actual count or purchase-total waiver threshold and decision; transaction traces display the transaction amount, fixed fee, basis-point rate, rounded proportional fee, and charged fee; late traces display due/paid dates, late/grace days, and the charged fee. These values come directly from the existing engine evidence.
 
 ## Financial data contracts
 
@@ -88,13 +110,13 @@ The wider module boundaries distinguish implemented foundations from future prod
 | Money | Handle integer minimum currency units, checked arithmetic, rate representations, and explicit rounding policies. |
 | Engine | Evaluate a validated contract against an explicit scenario and return its outcome and trace. |
 | Scenarios | Represent bounded, reproducible inputs and fixed synthetic fixtures; search generates a declared simplified family without altering those fixtures. |
-| Diff | Compare category and total outcomes for the same scenario; structural rule comparison and a product interface remain future work. |
+| Diff | Compare category and total outcomes for the same scenario; the Stage 5A dashboard presents formal experiment outcomes and traces, while structural rule comparison remains future work. |
 | Counterexamples | Search declared bounded scenarios for a nonzero comparison delta, then reduce a verified witness within its bounds while preserving the sign of the difference. A product interface remains future work. |
-| Explanations | Preserve calculation traces and reduction history in verifiable JSON evidence and format readable Markdown; an interactive presentation layer remains future work. |
+| Explanations | Present calculation traces in the Stage 5A dashboard and preserve reduction history in verifiable JSON/Markdown evidence; the dedicated proof interface remains future work. |
 
 The rules engine is independent of React and browser presentation. Its core functions are pure and deterministic: the same contract and scenario yield the same result. Evaluation uses only explicit input dates. Search likewise uses explicit bounds and a seed rather than reading the system clock or an external service.
 
-Presentation components will collect inputs and render validated results. They should not contain financial rule logic. The engine should return structured traces that preserve the rules and intermediate values used in a calculation; the explanation layer should describe that evidence without inventing unsupported conclusions.
+Presentation components select explicit fixtures and render validated results without financial rule logic. The engine returns structured traces that preserve the rules and intermediate values used in a calculation; the presentation and explanation layers describe that evidence without inventing unsupported conclusions.
 
 ## Counterexample search
 
@@ -147,6 +169,8 @@ Validation enforces safe integer input ranges and rejects decimals, `NaN`, `Infi
 
 Each transaction's proportional fee is `roundHalfUp(amountCents × rateBps / 10000)`, calculated as an exact nonnegative rational value. Half-cent ties round up. The fixed fee is added after that rounding, then per-transaction charges are summed. Rounding a combined purchase total is a different policy and is not used. Formatting amounts for display must not alter the values used by the engine.
 
+The dashboard formatter validates safe integer cents and uses integer quotient/remainder arithmetic to construct dollar and two-digit cent strings, including the sign and thousands separators. It does not format money by dividing a floating-point number by 100. This preserves exact display up to `Number.MAX_SAFE_INTEGER`, including negative differences and zero. The formatter is presentation-only and does not recalculate any fees.
+
 See [CALCULATION_ENGINE.md](CALCULATION_ENGINE.md) for formulas, the Gregorian ordinal algorithm, public result structures, trace fields, failure paths, and worked fixture calculations.
 
 ## Quality checks
@@ -161,10 +185,12 @@ Stage 4A preserves all 359 existing tests and adds Node.js search tests for disc
 
 Stage 4B preserves all 497 existing tests and adds runtime tests for real searched-witness reduction, positive and negative deltas, nonzero direction preservation, reduced absolute differences, budgets, forged evidence rejection, obligation/date/range invariants, overflow, immutable inputs, deterministic reruns, JSON proof round trips, tamper rejection, and Markdown consistency. It adds no dependency and does not change the existing financial formulas or search API.
 
+Stage 5A adds jsdom and React Testing Library as development dependencies for real rendered-selector interactions. The pure financial suites continue to use the Node.js environment. Dashboard tests check brand and semantic structure, default selection, switching across all three experiments, engine-derived summaries and categories, real trace details, structured errors, unchanged fixtures, local-only behavior, and exact USD formatting. The historical overview assertions are updated for the now-interactive screen while preserving its brand, accessibility, status, and local-resource checks. Runtime dependencies remain React, React DOM, and Zod.
+
 GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` on pushes and pull requests. A committed `package-lock.json` supports reproducible dependency installation. Secrets, dependency directories, and build artifacts must not be committed.
 
 ## Future deployment target
 
 The intended hosting target is GitHub Pages for the public `termshift-finance-lab` repository. Vite's base path is configured as `/termshift-finance-lab/` so generated asset URLs support that repository path.
 
-The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation belong to a later stage.
+The HTML favicon uses Vite's `%BASE_URL%` placeholder so its production URL includes that base path. The repository provides CI only. GitHub Pages publishing, deployment permissions, and release automation are reserved for Stage 6 and are not configured by Stage 5A.

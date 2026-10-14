@@ -2,6 +2,7 @@
   font-family: 'Segoe UI', Arial, sans-serif;
   color: #e8ece8;
   background: #0b100f;
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,6 +23,10 @@ textarea,
 select {
   font: inherit;
 }
+
+a { color: inherit; }
+
+h1, h2, h3, p { overflow-wrap: anywhere; }
 
 ::selection {
   color: #0b100f;

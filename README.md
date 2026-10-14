@@ -4,21 +4,21 @@
 
 TermShift is an explainable financial contract simulation and counterexample discovery engine. It aims to help people compare contract rules, discover scenarios where their outcomes differ, and understand the impact of those differences.
 
-**Project in Development — Stage 4B: Counterexample Minimizer & Proof of Impact**
+**Project in Development — Stage 5A: Interactive Financial Dashboard**
 
-This repository contains the frontend foundation, a responsive project overview, validated financial contract and scenario data models, a deterministic financial calculation engine, bounded counterexample searches, witness minimization, and verifiable impact evidence. The calculation engine evaluates explicit synthetic scenarios and returns fee totals and structured traces. The search combines contract-derived boundaries with seeded scenario generation to discover actual outcome differences. The minimizer reduces those witnesses while retaining the direction of their difference; the evidence module packages complete inputs and calculation traces as JSON and readable Markdown. An interactive analysis interface remains future work.
+TermShift now provides a local financial analysis dashboard for three synthetic experiments. Select an experiment to compare the old and new contracts, inspect category fees, and expand the actual calculation traces. Every displayed financial result comes from the existing comparison engine. The repository also contains validated contract and scenario models, bounded counterexample search, witness minimization, and verifiable impact evidence; their dedicated search and proof interfaces remain planned for Stage 5B and Stage 5C.
 
 ## Technology
 
 - React and TypeScript with strict type checking
 - Vite for local development and production builds
 - npm with a committed lockfile
-- Vitest for automated tests
+- Vitest for automated tests, with jsdom and React Testing Library for dashboard interaction tests
 - ESLint for code quality
 - GitHub Actions for continuous integration
 - Zod for runtime validation of contract and scenario inputs
 
-The application is a single static frontend. It has no backend, database, authentication, or runtime third-party API calls. The calculation core is pure TypeScript, runs in Node.js tests, and is suitable for future local browser use without React or DOM dependencies. The interface uses local CSS and does not load remote fonts, images, or CDN assets.
+The application is a single static frontend. It has no backend, database, authentication, or runtime third-party API calls. The calculation core is pure TypeScript, runs independently in Node.js tests, and powers the dashboard locally in the browser without React or DOM dependencies. The interface uses local CSS, system fonts, and local visual assets. jsdom and React Testing Library are development dependencies only; Stage 5A adds no runtime dependency or UI framework.
 
 ## Getting started
 
@@ -31,7 +31,7 @@ npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite. Vite is configured with the base path `/termshift-finance-lab/` for the future GitHub Pages target.
+Open the local URL printed by Vite, normally `http://localhost:5173/termshift-finance-lab/`. The dashboard initially shows The Waiver Trap. Use the labeled experiment selector to switch to The Microtransaction Penalty or The Grace Period Shift, then expand Calculation Details to inspect the old and new contract traces. Vite is configured with the base path `/termshift-finance-lab/` for the future GitHub Pages target. Deployment is reserved for Stage 6 and is not configured here.
 
 ## Development commands
 
@@ -59,7 +59,9 @@ The CI workflow runs this verification sequence on pushes and pull requests. The
 ## Current scope
 
 - A React, TypeScript, and Vite application foundation.
-- A responsive dark homepage with the TermShift name, product introduction, module descriptions, and a visible development status.
+- A responsive dark dashboard with TermShift branding, a visible development status, and a labeled, keyboard-operable selector for the three formal experiments.
+- Old Contract Cost, New Contract Cost, and Cost Difference summaries; monthly, transaction, and late-fee comparisons with readable amounts and CSS bars; expandable traces for both contract versions.
+- Explicit increase, decrease, and equal-cost text alongside visual states, an assistive-technology announcement of result changes, and structured engine errors without fabricated success values.
 - React-independent Contract v1 and Scenario v1 schemas with strict runtime validation and structured errors for unknown inputs.
 - Monthly fee, transaction fee, and late fee rule data types, restricted to USD cents and integer basis points.
 - Three complete synthetic experiments: The Waiver Trap, The Microtransaction Penalty, and The Grace Period Shift.
@@ -67,10 +69,12 @@ The CI workflow runs this verification sequence on pushes and pull requests. The
 - A local deterministic search API that starts from an explicit base scenario, explores bounded uniform-purchase/shared-payment-delay scenarios, and retains complete witnesses computed by the existing comparison engine.
 - A deterministic, bounded minimizer that validates and recomputes each witness, reduces purchases, amounts, and payment delays, and preserves payment obligations and a nonzero delta with the same sign.
 - JSON-safe Proof of Impact data, runtime proof verification through fresh engine comparisons, and a pure Markdown report formatter.
-- Executable homepage, runtime validation, calculation, search, minimization, and proof tests, linting, type checking, and build scripts.
+- Executable dashboard interaction, exact amount formatting, runtime validation, calculation, search, minimization, and proof tests, linting, type checking, and build scripts.
 - Engineering documentation, an MIT license, and a GitHub Actions CI workflow.
 
-The homepage is informational. It contains no unimplemented analysis controls or fabricated financial results.
+The dashboard uses React state to select a fixture from `src/scenarios/`, then calls `compareContracts(experiment.oldContract, experiment.newContract, experiment.scenario)` from `src/engine/index.ts`. Summary values and fee breakdowns come directly from the returned `Comparison`; Calculation Details render the discriminated `Evaluation.trace` records. A failed comparison displays its structured issues instead of substituting zero fees. Selecting an experiment does not mutate the fixtures. There are no runtime API requests, account services, scenario editors, or search/proof controls.
+
+Presentation code lives in `src/features/dashboard/`, separate from the financial core. The amount formatter converts safe integer cents to exact whole-dollar and two-digit cent strings with integer arithmetic, including signed differences and large values. Chart widths are visual ratios only; they do not calculate or replace the monetary values shown as text.
 
 The public data model API is exported from `src/models/index.ts`; synthetic fixtures are exported from `src/scenarios/index.ts`. Validation accepts `unknown` and returns either validated data or issues with a field path, code, and message. It checks actual Gregorian calendar dates without JavaScript date normalization, rejects unknown object fields, and bounds scenario inputs to 10,000 transactions and 1,000 payment events. Models and validators run in the Node.js test environment without React, browser APIs, a clock, random values, or network access.
 
@@ -82,7 +86,7 @@ Repeating the same inputs, options, seed, and code revision reproduces candidate
 
 The public minimizer API is exported from `src/minimizer/index.ts`. `minimizeWitness(oldContractInput, newContractInput, witnessInput, searchOptionsInput, minimizationOptionsInput)` accepts unknown inputs and returns validated reduction evidence or structured issues. It first recomputes the recorded witness using `compareContracts`; forged comparisons, mismatched deltas, and zero-delta witnesses fail. It minimizes the lexicographic tuple of purchase count, total purchase cents, and total nonnegative late days, within the original search bounds. Its comparison budget defaults to 200 and cannot exceed 300, including the original comparison and failed candidate calculations. A returned result describes reduction under a finite strategy and budget, without claiming a global minimum.
 
-The public evidence API is exported from `src/proof/index.ts`. `createImpactProof` takes the same inputs as the minimizer, `verifyImpactProof(unknown)` validates a saved proof and recomputes its financial results, and `formatImpactReport(unknown)` returns a verified Markdown report or structured issues. Proofs preserve contracts, search options and seed, witness source, original and reduced scenarios, comparisons, accepted steps, budget, calculation policy, and limitations. Verification checks calculation consistency and reduction invariants; it does not certify past search history or provide a cryptographic signature. Stage 4B adds no dependency, runtime network call, new UI, or PDF output.
+The public evidence API is exported from `src/proof/index.ts`. `createImpactProof` takes the same inputs as the minimizer, `verifyImpactProof(unknown)` validates a saved proof and recomputes its financial results, and `formatImpactReport(unknown)` returns a verified Markdown report or structured issues. Proofs preserve contracts, search options and seed, witness source, original and reduced scenarios, comparisons, accepted steps, budget, calculation policy, and limitations. Verification checks calculation consistency and reduction invariants; it does not certify past search history or provide a cryptographic signature. The evidence APIs remain independent of the dashboard and have no runtime network call or PDF output.
 
 Contract `effectiveDate` is descriptive version metadata. It does not prevent a scenario from being used for a counterfactual comparison. Internal `bigint` arithmetic preserves monetary precision, and results outside the safe integer range fail explicitly. The completed-payment late fee is assessed separately for each synthetic payment event; it does not model real account-level bank late fees, balances, partial repayments, interest, or financial regulation.
 
@@ -96,15 +100,15 @@ The existing fixtures produce these calculated totals:
 
 These are computations over fictional inputs, not real product analyses or financial advice. Expected results belong in tests and documentation; fixtures retain their input data without embedded answers.
 
-## Planned modules
+## Product modules and next stages
 
-| Module | Intended role |
+| Module | Current interface and intended role |
 | --- | --- |
-| Financial Diff | Compare financial contract rules and explain where simulated outcomes diverge. |
-| Counterexample Hunter | Search explicit scenarios for examples that expose meaningful differences between contracts. |
-| Proof of Impact | Trace the rules and calculations behind a difference so its effect can be explained. |
+| Financial Diff | Stage 5A dashboard compares fees and calculation traces for the three formal experiments. General contract editing and structural rule diffs remain future work. |
+| Counterexample Hunter | Core search and minimization APIs are implemented. A dedicated interactive search interface is Planned for Stage 5B. |
+| Proof of Impact | Core JSON evidence, verification, and Markdown APIs are implemented. A dedicated interactive proof interface is Planned for Stage 5C. |
 
-The complete product modules and their interfaces are design targets for later stages. The current core provides outcome comparison, calculation traces, bounded counterexample discovery, reduction, and verifiable JSON/Markdown evidence. Structural rule diffs and interactive analysis views remain future work. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places.
+The planned search and proof interfaces are described as future work, with no inactive navigation or pretend controls. Stage 5A does not implement Stage 5B, Stage 5C, or Stage 6 GitHub Pages deployment. The current model supports USD only, with amounts stored as integer cents. Future currency support must declare each currency's unit scale instead of assuming all currencies have two decimal places.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for frontend constraints and module boundaries, [docs/FINANCIAL_MODEL.md](docs/FINANCIAL_MODEL.md) for input fields and validation requirements, [docs/CALCULATION_ENGINE.md](docs/CALCULATION_ENGINE.md) for formulas and calculation traces, [docs/COUNTEREXAMPLE_SEARCH.md](docs/COUNTEREXAMPLE_SEARCH.md) for search options and coverage limits, and [docs/MINIMIZATION_AND_PROOF.md](docs/MINIMIZATION_AND_PROOF.md) for reduction APIs, proof verification, and reproducible synthetic results.
 

@@ -1,34 +1,43 @@
-import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+// @vitest-environment jsdom
+import { cleanup, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
 
-describe('Stage 1 project overview', () => {
-  it('renders the project identity and development status', () => {
-    const html = renderToStaticMarkup(<App />)
+afterEach(cleanup)
 
-    expect(html).toMatch(/<h1\b[^>]*>TermShift/)
-    expect(html).toContain('Financial Contract')
-    expect(html).toContain('Counterexample Lab')
-    expect(html).toContain('Project in Development')
-    expect(html).toContain(
+describe('Project identity and honest development scope', () => {
+  it('renders the project identity, development status, and local assets', () => {
+    const { container } = render(<App />)
+
+    expect(screen.getByLabelText('TermShift').textContent).toContain('TermShift')
+    expect(screen.getByRole('heading', { name: 'Financial contract lab', level: 1 })).toBeTruthy()
+    expect(container.textContent).toContain('Financial Contract')
+    expect(container.textContent).toContain('Counterexample Lab')
+    expect(screen.getByText('Project in Development')).toBeTruthy()
+    expect(container.textContent).toContain(
       'An explainable financial contract simulation and counterexample discovery engine.',
     )
+
+    for (const asset of container.querySelectorAll('[src]')) {
+      expect(asset.getAttribute('src')).not.toMatch(/^(?:https?:)?\/\//)
+    }
+    expect(container.querySelector('script[src], iframe')).toBeNull()
   })
 
-  it('keeps every advertised module explicitly in the planned stage', () => {
-    const html = renderToStaticMarkup(<App />)
-    const cards = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/g) ?? []
+  it('marks future modules as planned while providing a working Dashboard selector', () => {
+    render(<App />)
 
-    expect(cards).toHaveLength(3)
-    for (const [index, name] of [
-      'Financial Diff',
-      'Counterexample Hunter',
-      'Proof of Impact',
-    ].entries()) {
-      expect(cards[index]).toContain(`<h3>${name}</h3>`)
-      expect(cards[index]).toContain('Planned module')
+    for (const name of ['Financial Diff', 'Counterexample Hunter', 'Proof of Impact']) {
+      const heading = screen.getByRole('heading', { name, level: 2 })
+      const card = heading.parentElement
+      expect(card).not.toBeNull()
+      if (card === null) throw new Error(`Missing planned module card: ${name}`)
+      expect(within(card).getByText(/Planned/)).toBeTruthy()
+      expect(card.querySelector('button, a, input, select, textarea')).toBeNull()
     }
-    expect(html).toContain('Interactive calculations are not available here yet.')
-    expect(html).not.toMatch(/<(button|input|form|select|textarea)\b/)
+
+    const selector = screen.getByRole('combobox', { name: 'Experiment' })
+    expect(selector.tagName).toBe('SELECT')
+    expect(screen.queryByText('Interactive calculations are not available here yet.')).toBeNull()
   })
 })
