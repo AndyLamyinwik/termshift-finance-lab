@@ -24,6 +24,14 @@ describe('Project identity and honest development scope', () => {
     expect(container.querySelector('script[src], iframe')).toBeNull()
   })
 
+  it('identifies the deployed public preview in the rendered footer', () => {
+    render(<App />)
+
+    const footer = screen.getByRole('contentinfo')
+    expect(within(footer).getByText('Public Preview · Computed locally')).toBeTruthy()
+    expect(within(footer).queryByText('Stage 5C-2 · Portable impact evidence')).toBeNull()
+  })
+
   it('provides four working workspace views and an honest empty proof state', () => {
     render(<App />)
 
