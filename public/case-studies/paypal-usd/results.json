@@ -1,0 +1,2258 @@
+{
+  "caseStudyVersion": 1,
+  "source": {
+    "schemaVersion": 1,
+    "id": "paypal-usd-published-plans",
+    "url": "https://www.paypal.com/us/business/paypal-business-fees",
+    "title": "PayPal US merchant fees: published-plan comparison",
+    "capturedOn": "2026-10-27",
+    "feePageUpdatedOn": "2026-10-01",
+    "termsUrl": "https://www.paypal.com/us/legalhub/paypal/useragreement-full",
+    "termsSection": "Transaction Fees for Online and In-Store Payments / Micropayments",
+    "market": "United States (US)",
+    "currency": "USD",
+    "sourceSections": [
+      "Standard rate for receiving domestic transactions / PayPal Checkout",
+      "Fixed fee for commercial transactions / US dollar",
+      "Receiving domestic micropayments / US",
+      "Micropayments fixed fee / US dollar"
+    ],
+    "plans": {
+      "A": {
+        "label": "PayPal Checkout",
+        "rateBps": 349,
+        "fixedCents": 49
+      },
+      "B": {
+        "label": "Static Micropayments rate model",
+        "rateBps": 499,
+        "fixedCents": 9
+      }
+    },
+    "applicability": [
+      "US merchant accounts receiving eligible domestic commercial payments in USD; both parties belong to the same market under PayPal's domestic definition.",
+      "Micropayments requires application and approval; not every payment type qualifies.",
+      "Plan B models the published micropayment tariff applied to every included transaction, as with a previously approved Static Micropayments account.",
+      "Dynamic Micropayments automatically selects the lower applicable tariff per transaction. This flat Plan B model does not implement Dynamic pricing.",
+      "PayPal may convert a Static account to Dynamic and is not obliged to offer Static as an alternative. This case does not establish that a visitor can obtain Static pricing."
+    ],
+    "modelAssumptions": [
+      "TermShift rounds each transaction's percentage component half up to integer USD cents, then adds its fixed fee. The consulted fee page and micropayment terms do not establish that PayPal uses this same rounding policy.",
+      "Transactions are invented incoming-payment examples represented by the existing purchase transaction type; no actual account activity is used.",
+      "Contract effectiveDate is the capture date used as descriptive fixture metadata, not a claim about when PayPal introduced or changed either tariff.",
+      "Plan A and Plan B are contemporaneous tariff models, not old and new versions of a historical price change. Proof Schema v1 retains its oldContract/newContract keys, mapped to A/B respectively."
+    ],
+    "exclusions": [
+      "International and cross-border surcharges",
+      "Currency conversion and exchange-rate spreads",
+      "Refunds, reversals, disputes and chargebacks",
+      "Other payment products, in-person or QR tariffs, and special payment-type eligibility",
+      "Negotiated, charitable or account-specific pricing, taxes and ancillary charges",
+      "Actual account eligibility, routing and Dynamic Micropayments selection"
+    ],
+    "verificationScope": "Source observations and a reproducible model comparison; not authenticated PayPal billing evidence, provider endorsement or financial advice."
+  },
+  "labels": {
+    "planA": "Checkout",
+    "planB": "Static Micropayments model",
+    "delta": "B minus A"
+  },
+  "schemaMapping": {
+    "oldContract": "planA",
+    "newContract": "planB"
+  },
+  "contracts": {
+    "planA": {
+      "schemaVersion": 1,
+      "id": "paypal-checkout-a",
+      "name": "Plan A model — PayPal Checkout",
+      "version": "1.0.0",
+      "currency": "USD",
+      "billingCycle": "calendar-month",
+      "effectiveDate": "2026-10-27",
+      "rules": {
+        "transactionFee": {
+          "rateBps": 349,
+          "fixedCents": 49
+        }
+      }
+    },
+    "planB": {
+      "schemaVersion": 1,
+      "id": "paypal-static-micropayments-b",
+      "name": "Plan B model — Static Micropayments",
+      "version": "1.0.0",
+      "currency": "USD",
+      "billingCycle": "calendar-month",
+      "effectiveDate": "2026-10-27",
+      "rules": {
+        "transactionFee": {
+          "rateBps": 499,
+          "fixedCents": 9
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "usd-1",
+      "label": "1 × USD 1.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-1",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-1-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-1",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 52,
+          "lateFeeCents": 0,
+          "totalCents": 52,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-1-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-1",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 14,
+          "lateFeeCents": 0,
+          "totalCents": 14,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-1-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            }
+          ]
+        },
+        "deltaCents": -38,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": -38,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 52,
+        "planBCents": 14
+      }
+    },
+    {
+      "id": "usd-5",
+      "label": "1 × USD 5.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-5",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-5-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 500,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-5",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 66,
+          "lateFeeCents": 0,
+          "totalCents": 66,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-5-purchase-1",
+              "amountCents": 500,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 17,
+              "chargedCents": 66
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-5",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 34,
+          "lateFeeCents": 0,
+          "totalCents": 34,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-5-purchase-1",
+              "amountCents": 500,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 25,
+              "chargedCents": 34
+            }
+          ]
+        },
+        "deltaCents": -32,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": -32,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 66,
+        "planBCents": 34
+      }
+    },
+    {
+      "id": "usd-10",
+      "label": "1 × USD 10.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-10",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-10-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 1000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-10",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 84,
+          "lateFeeCents": 0,
+          "totalCents": 84,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-10-purchase-1",
+              "amountCents": 1000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 35,
+              "chargedCents": 84
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-10",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 59,
+          "lateFeeCents": 0,
+          "totalCents": 59,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-10-purchase-1",
+              "amountCents": 1000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 50,
+              "chargedCents": 59
+            }
+          ]
+        },
+        "deltaCents": -25,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": -25,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 84,
+        "planBCents": 59
+      }
+    },
+    {
+      "id": "usd-20",
+      "label": "1 × USD 20.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-20",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-20-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 2000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-20",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 119,
+          "lateFeeCents": 0,
+          "totalCents": 119,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-20-purchase-1",
+              "amountCents": 2000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 70,
+              "chargedCents": 119
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-20",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 109,
+          "lateFeeCents": 0,
+          "totalCents": 109,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-20-purchase-1",
+              "amountCents": 2000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 100,
+              "chargedCents": 109
+            }
+          ]
+        },
+        "deltaCents": -10,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": -10,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 119,
+        "planBCents": 109
+      }
+    },
+    {
+      "id": "usd-26-66",
+      "label": "1 × USD 26.66",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-26-66",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-26-66-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 2666,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-26-66",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 142,
+          "lateFeeCents": 0,
+          "totalCents": 142,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-26-66-purchase-1",
+              "amountCents": 2666,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 93,
+              "chargedCents": 142
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-26-66",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 142,
+          "lateFeeCents": 0,
+          "totalCents": 142,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-26-66-purchase-1",
+              "amountCents": 2666,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 133,
+              "chargedCents": 142
+            }
+          ]
+        },
+        "deltaCents": 0,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 0,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 142,
+        "planBCents": 142
+      }
+    },
+    {
+      "id": "usd-26-67",
+      "label": "1 × USD 26.67",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-26-67",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-26-67-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 2667,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-26-67",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 142,
+          "lateFeeCents": 0,
+          "totalCents": 142,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-26-67-purchase-1",
+              "amountCents": 2667,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 93,
+              "chargedCents": 142
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-26-67",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 142,
+          "lateFeeCents": 0,
+          "totalCents": 142,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-26-67-purchase-1",
+              "amountCents": 2667,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 133,
+              "chargedCents": 142
+            }
+          ]
+        },
+        "deltaCents": 0,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 0,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 142,
+        "planBCents": 142
+      }
+    },
+    {
+      "id": "usd-30",
+      "label": "1 × USD 30.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-30",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-30-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 3000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-30",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 154,
+          "lateFeeCents": 0,
+          "totalCents": 154,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-30-purchase-1",
+              "amountCents": 3000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 105,
+              "chargedCents": 154
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-30",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 159,
+          "lateFeeCents": 0,
+          "totalCents": 159,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-30-purchase-1",
+              "amountCents": 3000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 150,
+              "chargedCents": 159
+            }
+          ]
+        },
+        "deltaCents": 5,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 5,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 154,
+        "planBCents": 159
+      }
+    },
+    {
+      "id": "usd-100",
+      "label": "1 × USD 100.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-usd-100",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "usd-100-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-100",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 398,
+          "lateFeeCents": 0,
+          "totalCents": 398,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-100-purchase-1",
+              "amountCents": 10000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 349,
+              "chargedCents": 398
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-usd-100",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 508,
+          "lateFeeCents": 0,
+          "totalCents": 508,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "usd-100-purchase-1",
+              "amountCents": 10000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 499,
+              "chargedCents": 508
+            }
+          ]
+        },
+        "deltaCents": 110,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 110,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 398,
+        "planBCents": 508
+      }
+    },
+    {
+      "id": "ten-usd-1",
+      "label": "10 × USD 1.00",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-ten-usd-1",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "ten-usd-1-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-5",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-6",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-7",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-8",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-9",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "ten-usd-1-purchase-10",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-ten-usd-1",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 520,
+          "lateFeeCents": 0,
+          "totalCents": 520,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-3",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-4",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-5",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-6",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-7",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-8",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-9",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-10",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-ten-usd-1",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 140,
+          "lateFeeCents": 0,
+          "totalCents": 140,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-3",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-4",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-5",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-6",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-7",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-8",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-9",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "ten-usd-1-purchase-10",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            }
+          ]
+        },
+        "deltaCents": -380,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": -380,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 520,
+        "planBCents": 140
+      }
+    },
+    {
+      "id": "mixed-basket",
+      "label": "USD 1 + 10 + 30 + 100",
+      "scenario": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 1000,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 3000,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 688,
+          "lateFeeCents": 0,
+          "totalCents": 688,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 1000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 35,
+              "chargedCents": 84
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 3000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 105,
+              "chargedCents": 154
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 10000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 349,
+              "chargedCents": 398
+            }
+          ]
+        },
+        "newEvaluation": {
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 740,
+          "lateFeeCents": 0,
+          "totalCents": 740,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 1000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 50,
+              "chargedCents": 59
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 3000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 150,
+              "chargedCents": 159
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 10000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 499,
+              "chargedCents": 508
+            }
+          ]
+        },
+        "deltaCents": 52,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 52,
+          "lateFeeCents": 0
+        }
+      },
+      "expected": {
+        "planACents": 688,
+        "planBCents": 740
+      }
+    }
+  ],
+  "chartPoints": [
+    {
+      "amountCents": 1,
+      "planACents": 49,
+      "planBCents": 9
+    },
+    {
+      "amountCents": 100,
+      "planACents": 52,
+      "planBCents": 14
+    },
+    {
+      "amountCents": 200,
+      "planACents": 56,
+      "planBCents": 19
+    },
+    {
+      "amountCents": 300,
+      "planACents": 59,
+      "planBCents": 24
+    },
+    {
+      "amountCents": 400,
+      "planACents": 63,
+      "planBCents": 29
+    },
+    {
+      "amountCents": 500,
+      "planACents": 66,
+      "planBCents": 34
+    },
+    {
+      "amountCents": 600,
+      "planACents": 70,
+      "planBCents": 39
+    },
+    {
+      "amountCents": 700,
+      "planACents": 73,
+      "planBCents": 44
+    },
+    {
+      "amountCents": 800,
+      "planACents": 77,
+      "planBCents": 49
+    },
+    {
+      "amountCents": 900,
+      "planACents": 80,
+      "planBCents": 54
+    },
+    {
+      "amountCents": 1000,
+      "planACents": 84,
+      "planBCents": 59
+    },
+    {
+      "amountCents": 1100,
+      "planACents": 87,
+      "planBCents": 64
+    },
+    {
+      "amountCents": 1200,
+      "planACents": 91,
+      "planBCents": 69
+    },
+    {
+      "amountCents": 1300,
+      "planACents": 94,
+      "planBCents": 74
+    },
+    {
+      "amountCents": 1400,
+      "planACents": 98,
+      "planBCents": 79
+    },
+    {
+      "amountCents": 1500,
+      "planACents": 101,
+      "planBCents": 84
+    },
+    {
+      "amountCents": 1600,
+      "planACents": 105,
+      "planBCents": 89
+    },
+    {
+      "amountCents": 1700,
+      "planACents": 108,
+      "planBCents": 94
+    },
+    {
+      "amountCents": 1800,
+      "planACents": 112,
+      "planBCents": 99
+    },
+    {
+      "amountCents": 1900,
+      "planACents": 115,
+      "planBCents": 104
+    },
+    {
+      "amountCents": 2000,
+      "planACents": 119,
+      "planBCents": 109
+    },
+    {
+      "amountCents": 2100,
+      "planACents": 122,
+      "planBCents": 114
+    },
+    {
+      "amountCents": 2200,
+      "planACents": 126,
+      "planBCents": 119
+    },
+    {
+      "amountCents": 2300,
+      "planACents": 129,
+      "planBCents": 124
+    },
+    {
+      "amountCents": 2400,
+      "planACents": 133,
+      "planBCents": 129
+    },
+    {
+      "amountCents": 2500,
+      "planACents": 136,
+      "planBCents": 134
+    },
+    {
+      "amountCents": 2600,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2601,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2602,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2603,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2604,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2605,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2606,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2607,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2608,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2609,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2610,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2611,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2612,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2613,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2614,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2615,
+      "planACents": 140,
+      "planBCents": 139
+    },
+    {
+      "amountCents": 2616,
+      "planACents": 140,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2617,
+      "planACents": 140,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2618,
+      "planACents": 140,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2619,
+      "planACents": 140,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2620,
+      "planACents": 140,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2621,
+      "planACents": 140,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2622,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2623,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2624,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2625,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2626,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2627,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2628,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2629,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2630,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2631,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2632,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2633,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2634,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2635,
+      "planACents": 141,
+      "planBCents": 140
+    },
+    {
+      "amountCents": 2636,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2637,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2638,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2639,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2640,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2641,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2642,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2643,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2644,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2645,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2646,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2647,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2648,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2649,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2650,
+      "planACents": 141,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2651,
+      "planACents": 142,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2652,
+      "planACents": 142,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2653,
+      "planACents": 142,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2654,
+      "planACents": 142,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2655,
+      "planACents": 142,
+      "planBCents": 141
+    },
+    {
+      "amountCents": 2656,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2657,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2658,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2659,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2660,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2661,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2662,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2663,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2664,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2665,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2666,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2667,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2668,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2669,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2670,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2671,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2672,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2673,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2674,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2675,
+      "planACents": 142,
+      "planBCents": 142
+    },
+    {
+      "amountCents": 2676,
+      "planACents": 142,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2677,
+      "planACents": 142,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2678,
+      "planACents": 142,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2679,
+      "planACents": 142,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2680,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2681,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2682,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2683,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2684,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2685,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2686,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2687,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2688,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2689,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2690,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2691,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2692,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2693,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2694,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2695,
+      "planACents": 143,
+      "planBCents": 143
+    },
+    {
+      "amountCents": 2696,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2697,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2698,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2699,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2700,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2701,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2702,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2703,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2704,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2705,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2706,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2707,
+      "planACents": 143,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2708,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2709,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2710,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2711,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2712,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2713,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2714,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2715,
+      "planACents": 144,
+      "planBCents": 144
+    },
+    {
+      "amountCents": 2716,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2717,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2718,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2719,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2720,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2721,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2722,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2723,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2724,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2725,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2726,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2727,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2728,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2729,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2730,
+      "planACents": 144,
+      "planBCents": 145
+    },
+    {
+      "amountCents": 2800,
+      "planACents": 147,
+      "planBCents": 149
+    },
+    {
+      "amountCents": 2900,
+      "planACents": 150,
+      "planBCents": 154
+    },
+    {
+      "amountCents": 3000,
+      "planACents": 154,
+      "planBCents": 159
+    },
+    {
+      "amountCents": 3100,
+      "planACents": 157,
+      "planBCents": 164
+    },
+    {
+      "amountCents": 3200,
+      "planACents": 161,
+      "planBCents": 169
+    },
+    {
+      "amountCents": 3300,
+      "planACents": 164,
+      "planBCents": 174
+    },
+    {
+      "amountCents": 3400,
+      "planACents": 168,
+      "planBCents": 179
+    },
+    {
+      "amountCents": 3500,
+      "planACents": 171,
+      "planBCents": 184
+    },
+    {
+      "amountCents": 3600,
+      "planACents": 175,
+      "planBCents": 189
+    },
+    {
+      "amountCents": 3700,
+      "planACents": 178,
+      "planBCents": 194
+    },
+    {
+      "amountCents": 3800,
+      "planACents": 182,
+      "planBCents": 199
+    },
+    {
+      "amountCents": 3900,
+      "planACents": 185,
+      "planBCents": 204
+    },
+    {
+      "amountCents": 4000,
+      "planACents": 189,
+      "planBCents": 209
+    },
+    {
+      "amountCents": 4100,
+      "planACents": 192,
+      "planBCents": 214
+    },
+    {
+      "amountCents": 4200,
+      "planACents": 196,
+      "planBCents": 219
+    },
+    {
+      "amountCents": 4300,
+      "planACents": 199,
+      "planBCents": 224
+    },
+    {
+      "amountCents": 4400,
+      "planACents": 203,
+      "planBCents": 229
+    },
+    {
+      "amountCents": 4500,
+      "planACents": 206,
+      "planBCents": 234
+    },
+    {
+      "amountCents": 4600,
+      "planACents": 210,
+      "planBCents": 239
+    },
+    {
+      "amountCents": 4700,
+      "planACents": 213,
+      "planBCents": 244
+    },
+    {
+      "amountCents": 4800,
+      "planACents": 217,
+      "planBCents": 249
+    },
+    {
+      "amountCents": 4900,
+      "planACents": 220,
+      "planBCents": 254
+    },
+    {
+      "amountCents": 5000,
+      "planACents": 224,
+      "planBCents": 259
+    },
+    {
+      "amountCents": 5100,
+      "planACents": 227,
+      "planBCents": 263
+    },
+    {
+      "amountCents": 5200,
+      "planACents": 230,
+      "planBCents": 268
+    },
+    {
+      "amountCents": 5300,
+      "planACents": 234,
+      "planBCents": 273
+    },
+    {
+      "amountCents": 5400,
+      "planACents": 237,
+      "planBCents": 278
+    },
+    {
+      "amountCents": 5500,
+      "planACents": 241,
+      "planBCents": 283
+    },
+    {
+      "amountCents": 5600,
+      "planACents": 244,
+      "planBCents": 288
+    },
+    {
+      "amountCents": 5700,
+      "planACents": 248,
+      "planBCents": 293
+    },
+    {
+      "amountCents": 5800,
+      "planACents": 251,
+      "planBCents": 298
+    },
+    {
+      "amountCents": 5900,
+      "planACents": 255,
+      "planBCents": 303
+    },
+    {
+      "amountCents": 6000,
+      "planACents": 258,
+      "planBCents": 308
+    },
+    {
+      "amountCents": 6100,
+      "planACents": 262,
+      "planBCents": 313
+    },
+    {
+      "amountCents": 6200,
+      "planACents": 265,
+      "planBCents": 318
+    },
+    {
+      "amountCents": 6300,
+      "planACents": 269,
+      "planBCents": 323
+    },
+    {
+      "amountCents": 6400,
+      "planACents": 272,
+      "planBCents": 328
+    },
+    {
+      "amountCents": 6500,
+      "planACents": 276,
+      "planBCents": 333
+    },
+    {
+      "amountCents": 6600,
+      "planACents": 279,
+      "planBCents": 338
+    },
+    {
+      "amountCents": 6700,
+      "planACents": 283,
+      "planBCents": 343
+    },
+    {
+      "amountCents": 6800,
+      "planACents": 286,
+      "planBCents": 348
+    },
+    {
+      "amountCents": 6900,
+      "planACents": 290,
+      "planBCents": 353
+    },
+    {
+      "amountCents": 7000,
+      "planACents": 293,
+      "planBCents": 358
+    },
+    {
+      "amountCents": 7100,
+      "planACents": 297,
+      "planBCents": 363
+    },
+    {
+      "amountCents": 7200,
+      "planACents": 300,
+      "planBCents": 368
+    },
+    {
+      "amountCents": 7300,
+      "planACents": 304,
+      "planBCents": 373
+    },
+    {
+      "amountCents": 7400,
+      "planACents": 307,
+      "planBCents": 378
+    },
+    {
+      "amountCents": 7500,
+      "planACents": 311,
+      "planBCents": 383
+    },
+    {
+      "amountCents": 7600,
+      "planACents": 314,
+      "planBCents": 388
+    },
+    {
+      "amountCents": 7700,
+      "planACents": 318,
+      "planBCents": 393
+    },
+    {
+      "amountCents": 7800,
+      "planACents": 321,
+      "planBCents": 398
+    },
+    {
+      "amountCents": 7900,
+      "planACents": 325,
+      "planBCents": 403
+    },
+    {
+      "amountCents": 8000,
+      "planACents": 328,
+      "planBCents": 408
+    },
+    {
+      "amountCents": 8100,
+      "planACents": 332,
+      "planBCents": 413
+    },
+    {
+      "amountCents": 8200,
+      "planACents": 335,
+      "planBCents": 418
+    },
+    {
+      "amountCents": 8300,
+      "planACents": 339,
+      "planBCents": 423
+    },
+    {
+      "amountCents": 8400,
+      "planACents": 342,
+      "planBCents": 428
+    },
+    {
+      "amountCents": 8500,
+      "planACents": 346,
+      "planBCents": 433
+    },
+    {
+      "amountCents": 8600,
+      "planACents": 349,
+      "planBCents": 438
+    },
+    {
+      "amountCents": 8700,
+      "planACents": 353,
+      "planBCents": 443
+    },
+    {
+      "amountCents": 8800,
+      "planACents": 356,
+      "planBCents": 448
+    },
+    {
+      "amountCents": 8900,
+      "planACents": 360,
+      "planBCents": 453
+    },
+    {
+      "amountCents": 9000,
+      "planACents": 363,
+      "planBCents": 458
+    },
+    {
+      "amountCents": 9100,
+      "planACents": 367,
+      "planBCents": 463
+    },
+    {
+      "amountCents": 9200,
+      "planACents": 370,
+      "planBCents": 468
+    },
+    {
+      "amountCents": 9300,
+      "planACents": 374,
+      "planBCents": 473
+    },
+    {
+      "amountCents": 9400,
+      "planACents": 377,
+      "planBCents": 478
+    },
+    {
+      "amountCents": 9500,
+      "planACents": 381,
+      "planBCents": 483
+    },
+    {
+      "amountCents": 9600,
+      "planACents": 384,
+      "planBCents": 488
+    },
+    {
+      "amountCents": 9700,
+      "planACents": 388,
+      "planBCents": 493
+    },
+    {
+      "amountCents": 9800,
+      "planACents": 391,
+      "planBCents": 498
+    },
+    {
+      "amountCents": 9900,
+      "planACents": 395,
+      "planBCents": 503
+    },
+    {
+      "amountCents": 10000,
+      "planACents": 398,
+      "planBCents": 508
+    }
+  ]
+}

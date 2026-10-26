@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "paypal-usd-published-plans",
+  "url": "https://www.paypal.com/us/business/paypal-business-fees",
+  "title": "PayPal US merchant fees: published-plan comparison",
+  "capturedOn": "2026-10-27",
+  "feePageUpdatedOn": "2026-10-01",
+  "termsUrl": "https://www.paypal.com/us/legalhub/paypal/useragreement-full",
+  "termsSection": "Transaction Fees for Online and In-Store Payments / Micropayments",
+  "market": "United States (US)",
+  "currency": "USD",
+  "sourceSections": [
+    "Standard rate for receiving domestic transactions / PayPal Checkout",
+    "Fixed fee for commercial transactions / US dollar",
+    "Receiving domestic micropayments / US",
+    "Micropayments fixed fee / US dollar"
+  ],
+  "plans": {
+    "A": {
+      "label": "PayPal Checkout",
+      "rateBps": 349,
+      "fixedCents": 49
+    },
+    "B": {
+      "label": "Static Micropayments rate model",
+      "rateBps": 499,
+      "fixedCents": 9
+    }
+  },
+  "applicability": [
+    "US merchant accounts receiving eligible domestic commercial payments in USD; both parties belong to the same market under PayPal's domestic definition.",
+    "Micropayments requires application and approval; not every payment type qualifies.",
+    "Plan B models the published micropayment tariff applied to every included transaction, as with a previously approved Static Micropayments account.",
+    "Dynamic Micropayments automatically selects the lower applicable tariff per transaction. This flat Plan B model does not implement Dynamic pricing.",
+    "PayPal may convert a Static account to Dynamic and is not obliged to offer Static as an alternative. This case does not establish that a visitor can obtain Static pricing."
+  ],
+  "modelAssumptions": [
+    "TermShift rounds each transaction's percentage component half up to integer USD cents, then adds its fixed fee. The consulted fee page and micropayment terms do not establish that PayPal uses this same rounding policy.",
+    "Transactions are invented incoming-payment examples represented by the existing purchase transaction type; no actual account activity is used.",
+    "Contract effectiveDate is the capture date used as descriptive fixture metadata, not a claim about when PayPal introduced or changed either tariff.",
+    "Plan A and Plan B are contemporaneous tariff models, not old and new versions of a historical price change. Proof Schema v1 retains its oldContract/newContract keys, mapped to A/B respectively."
+  ],
+  "exclusions": [
+    "International and cross-border surcharges",
+    "Currency conversion and exchange-rate spreads",
+    "Refunds, reversals, disputes and chargebacks",
+    "Other payment products, in-person or QR tariffs, and special payment-type eligibility",
+    "Negotiated, charitable or account-specific pricing, taxes and ancillary charges",
+    "Actual account eligibility, routing and Dynamic Micropayments selection"
+  ],
+  "verificationScope": "Source observations and a reproducible model comparison; not authenticated PayPal billing evidence, provider endorsement or financial advice."
+}

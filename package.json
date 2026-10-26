@@ -10,7 +10,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run case-study:paypal && tsc --noEmit && vite build",
+    "case-study:paypal": "node scripts/generate-paypal-case-study.mjs",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

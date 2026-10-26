@@ -16,6 +16,12 @@ TermShift is an explainable financial contract simulation and counterexample dis
 
 All financial calculations run locally in your browser. TermShift is a static frontend with no account connection, backend, database, runtime external API, or AI service.
 
+### Published-rate case study: PayPal USD
+
+[Open the PayPal A/B case study](https://andylamyinwik.github.io/termshift-finance-lab/case-studies/paypal-usd/) · [Method, sources and reproduction](docs/case-studies/PAYPAL_USD.md)
+
+Compare published US Checkout and Static Micropayments fee schedules using synthetic receipts, independent expected values, an engine-derived fee curve, and downloadable verified JSON/Markdown evidence. The case distinguishes Static eligibility from Dynamic pricing and records its source date, exclusions and model rounding assumption. It compares two plans rather than a historical price change; the original three synthetic experiments remain available below.
+
 ### Explore the lab
 
 | Module | What you can do |
@@ -180,6 +186,12 @@ TermShift 是一個開源的金融合約模擬與反例探索工具。你可以�
 
 目前應用介面為英文；以下保留網站上的按鈕與模組名稱，方便對照操作。本頁提供中文介紹，並非介面語言切換功能。
 
+### 公開費率案例：PayPal USD
+
+[開啟 PayPal A／B 案例](https://andylamyinwik.github.io/termshift-finance-lab/case-studies/paypal-usd/) · [來源、方法與重現說明](docs/case-studies/PAYPAL_USD.md)
+
+使用美國公開的 Checkout 與 Static Micropayments 費率，查看費用曲線、獨立預期／引擎對照表，並下載可重新驗證的 JSON／Markdown 證據。案例清楚區分 Static 核准條件與 Dynamic 自動選價；逐筆捨入列為模型假設。這是兩方案比較，交易情景為虛構資料。
+
 ### 四個核心模組
 
 | 模組 | 可以做什麼 |
@@ -238,6 +250,12 @@ TermShift 是一个开源的金融合同模拟与反例探索工具。你可以�
 - **[本地安装与开发方式](#run-locally)**：适合想自行运行或参与开发的人。
 
 目前应用界面为英文；以下保留网站上的按钮与模块名称，方便对照操作。本页提供中文介绍，并非界面语言切换功能。
+
+### 公开费率案例：PayPal USD
+
+[打开 PayPal A／B 案例](https://andylamyinwik.github.io/termshift-finance-lab/case-studies/paypal-usd/) · [来源、方法与复现说明](docs/case-studies/PAYPAL_USD.md)
+
+使用美国公开的 Checkout 与 Static Micropayments 费率，查看费用曲线、独立预期／引擎对照表，并下载可重新验证的 JSON／Markdown 证据。案例清楚区分 Static 核准条件与 Dynamic 自动选价；逐笔舍入列为模型假设。这是两方案比较，交易场景为虚构数据。
 
 ### 四个核心模块
 

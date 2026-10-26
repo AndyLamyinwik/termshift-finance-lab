@@ -59,6 +59,8 @@ The project is served under that repository subpath, rather than the domain root
 
 The app navigates between Dashboard, Financial Diff, Counterexample Hunter, and Proof of Impact with in-memory state. It does not use React Router or deep URL routes. Deployment requires no `404.html` SPA fallback or routing dependency.
 
+The PayPal published-rate case uses a separate static HTML entry at `/termshift-finance-lab/case-studies/paypal-usd/`. `npm run build` first regenerates its deterministic case data and evidence, then builds both entries into the same `dist/` Pages artifact. The case's graph, JSON and Markdown are local static files under that directory. Include its HTML, assets, downloads and JSON import smoke checks when verifying this delivery; `build-info.json` identifies the source of both entries.
+
 For a local production preview, run `npm run build`, then `npx vite preview --host 127.0.0.1` to serve the built artifact. Use the printed URL with `/termshift-finance-lab/`. Local checks help diagnose problems, but public acceptance must use the deployed Pages URL.
 
 ## Verify current-version delivery

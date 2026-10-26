@@ -1,0 +1,1795 @@
+{
+  "proofSchemaVersion": 1,
+  "engineVersion": "stage3-v1",
+  "minimizerVersion": "stage4b-v1",
+  "oldContract": {
+    "schemaVersion": 1,
+    "id": "paypal-checkout-a",
+    "name": "Plan A model — PayPal Checkout",
+    "version": "1.0.0",
+    "currency": "USD",
+    "billingCycle": "calendar-month",
+    "effectiveDate": "2026-10-27",
+    "rules": {
+      "transactionFee": {
+        "fixedCents": 49,
+        "rateBps": 349
+      }
+    }
+  },
+  "newContract": {
+    "schemaVersion": 1,
+    "id": "paypal-static-micropayments-b",
+    "name": "Plan B model — Static Micropayments",
+    "version": "1.0.0",
+    "currency": "USD",
+    "billingCycle": "calendar-month",
+    "effectiveDate": "2026-10-27",
+    "rules": {
+      "transactionFee": {
+        "fixedCents": 9,
+        "rateBps": 499
+      }
+    }
+  },
+  "witnessSource": {
+    "candidateId": "base",
+    "sequence": 0,
+    "source": "base"
+  },
+  "searchOptions": {
+    "seed": 20261027,
+    "maxEvaluations": 1,
+    "maxResults": 1,
+    "purchaseCountMin": 4,
+    "purchaseCountMax": 4,
+    "purchaseAmountCentsMin": 100,
+    "purchaseAmountCentsMax": 10000,
+    "lateDaysMin": 0,
+    "lateDaysMax": 0
+  },
+  "originalScenario": {
+    "schemaVersion": 1,
+    "id": "paypal-mixed-basket",
+    "billingMonth": "2026-10",
+    "transactions": [
+      {
+        "id": "mixed-basket-purchase-1",
+        "occurredOn": "2026-10-15",
+        "amountCents": 100,
+        "kind": "purchase"
+      },
+      {
+        "id": "mixed-basket-purchase-2",
+        "occurredOn": "2026-10-15",
+        "amountCents": 1000,
+        "kind": "purchase"
+      },
+      {
+        "id": "mixed-basket-purchase-3",
+        "occurredOn": "2026-10-15",
+        "amountCents": 3000,
+        "kind": "purchase"
+      },
+      {
+        "id": "mixed-basket-purchase-4",
+        "occurredOn": "2026-10-15",
+        "amountCents": 10000,
+        "kind": "purchase"
+      }
+    ],
+    "paymentEvents": []
+  },
+  "minimizedScenario": {
+    "schemaVersion": 1,
+    "id": "paypal-mixed-basket",
+    "billingMonth": "2026-10",
+    "transactions": [
+      {
+        "id": "mixed-basket-purchase-1",
+        "occurredOn": "2026-10-15",
+        "amountCents": 100,
+        "kind": "purchase"
+      },
+      {
+        "id": "mixed-basket-purchase-2",
+        "occurredOn": "2026-10-15",
+        "amountCents": 100,
+        "kind": "purchase"
+      },
+      {
+        "id": "mixed-basket-purchase-3",
+        "occurredOn": "2026-10-15",
+        "amountCents": 431,
+        "kind": "purchase"
+      },
+      {
+        "id": "mixed-basket-purchase-4",
+        "occurredOn": "2026-10-15",
+        "amountCents": 9970,
+        "kind": "purchase"
+      }
+    ],
+    "paymentEvents": []
+  },
+  "originalComparison": {
+    "oldEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 688,
+      "lateFeeCents": 0,
+      "contractId": "paypal-checkout-a",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-mixed-basket",
+      "currency": "USD",
+      "totalCents": 688,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-1",
+          "amountCents": 100,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 3,
+          "chargedCents": 52
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-2",
+          "amountCents": 1000,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 35,
+          "chargedCents": 84
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-3",
+          "amountCents": 3000,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 105,
+          "chargedCents": 154
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-4",
+          "amountCents": 10000,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 349,
+          "chargedCents": 398
+        }
+      ]
+    },
+    "newEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 740,
+      "lateFeeCents": 0,
+      "contractId": "paypal-static-micropayments-b",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-mixed-basket",
+      "currency": "USD",
+      "totalCents": 740,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-1",
+          "amountCents": 100,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 5,
+          "chargedCents": 14
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-2",
+          "amountCents": 1000,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 50,
+          "chargedCents": 59
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-3",
+          "amountCents": 3000,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 150,
+          "chargedCents": 159
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-4",
+          "amountCents": 10000,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 499,
+          "chargedCents": 508
+        }
+      ]
+    },
+    "deltaCents": 52,
+    "deltaByCategoryCents": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 52,
+      "lateFeeCents": 0
+    }
+  },
+  "minimizedComparison": {
+    "oldEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 565,
+      "lateFeeCents": 0,
+      "contractId": "paypal-checkout-a",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-mixed-basket",
+      "currency": "USD",
+      "totalCents": 565,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-1",
+          "amountCents": 100,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 3,
+          "chargedCents": 52
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-2",
+          "amountCents": 100,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 3,
+          "chargedCents": 52
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-3",
+          "amountCents": 431,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 15,
+          "chargedCents": 64
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-4",
+          "amountCents": 9970,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 348,
+          "chargedCents": 397
+        }
+      ]
+    },
+    "newEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 566,
+      "lateFeeCents": 0,
+      "contractId": "paypal-static-micropayments-b",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-mixed-basket",
+      "currency": "USD",
+      "totalCents": 566,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-1",
+          "amountCents": 100,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 5,
+          "chargedCents": 14
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-2",
+          "amountCents": 100,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 5,
+          "chargedCents": 14
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-3",
+          "amountCents": 431,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 22,
+          "chargedCents": 31
+        },
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "mixed-basket-purchase-4",
+          "amountCents": 9970,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 498,
+          "chargedCents": 507
+        }
+      ]
+    },
+    "deltaCents": 1,
+    "deltaByCategoryCents": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 1,
+      "lateFeeCents": 0
+    }
+  },
+  "reductionSteps": [
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 1000,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 3000,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 3000,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 39,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 13200,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 656,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 656,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 3000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 105,
+              "chargedCents": 154
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 10000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 349,
+              "chargedCents": 398
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 695,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 695,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 3000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 150,
+              "chargedCents": 159
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 10000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 499,
+              "chargedCents": 508
+            }
+          ]
+        },
+        "deltaCents": 39,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 39,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 3000,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 462,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10662,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 567,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 567,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 462,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 16,
+              "chargedCents": 65
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 10000,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 349,
+              "chargedCents": 398
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 568,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 568,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 462,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 23,
+              "chargedCents": 32
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 10000,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 499,
+              "chargedCents": 508
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 462,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 10000,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 462,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9992,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10654,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 567,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 567,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 462,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 16,
+              "chargedCents": 65
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9992,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 349,
+              "chargedCents": 398
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 568,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 568,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 462,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 23,
+              "chargedCents": 32
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9992,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 499,
+              "chargedCents": 508
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 462,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9992,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 439,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9992,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10631,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 566,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 566,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 439,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 15,
+              "chargedCents": 64
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9992,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 349,
+              "chargedCents": 398
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 567,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 567,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 439,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 22,
+              "chargedCents": 31
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9992,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 499,
+              "chargedCents": 508
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 439,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9992,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 439,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9984,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10623,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 565,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 565,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 439,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 15,
+              "chargedCents": 64
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9984,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 348,
+              "chargedCents": 397
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 566,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 566,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 439,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 22,
+              "chargedCents": 31
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9984,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 498,
+              "chargedCents": 507
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 439,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9984,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 431,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9984,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10615,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 565,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 565,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 431,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 15,
+              "chargedCents": 64
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9984,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 348,
+              "chargedCents": 397
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 566,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 566,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 431,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 22,
+              "chargedCents": 31
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9984,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 498,
+              "chargedCents": 507
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 431,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9984,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 431,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9976,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10607,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 565,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 565,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 431,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 15,
+              "chargedCents": 64
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9976,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 348,
+              "chargedCents": 397
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 566,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 566,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 431,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 22,
+              "chargedCents": 31
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9976,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 498,
+              "chargedCents": 507
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    },
+    {
+      "type": "lower-purchase-amount",
+      "before": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 431,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9976,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "after": {
+        "schemaVersion": 1,
+        "id": "paypal-mixed-basket",
+        "billingMonth": "2026-10",
+        "transactions": [
+          {
+            "id": "mixed-basket-purchase-1",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-2",
+            "occurredOn": "2026-10-15",
+            "amountCents": 100,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-3",
+            "occurredOn": "2026-10-15",
+            "amountCents": 431,
+            "kind": "purchase"
+          },
+          {
+            "id": "mixed-basket-purchase-4",
+            "occurredOn": "2026-10-15",
+            "amountCents": 9970,
+            "kind": "purchase"
+          }
+        ],
+        "paymentEvents": []
+      },
+      "reason": "Probe a smaller integer purchase amount without assuming monotonic fee differences.",
+      "validation": {
+        "success": true,
+        "deltaCents": 1,
+        "objective": {
+          "purchaseCount": 4,
+          "purchaseTotalCents": 10601,
+          "totalLateDays": 0
+        }
+      },
+      "comparison": {
+        "oldEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 565,
+          "lateFeeCents": 0,
+          "contractId": "paypal-checkout-a",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 565,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 3,
+              "chargedCents": 52
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 431,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 15,
+              "chargedCents": 64
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9970,
+              "fixedCents": 49,
+              "rateBps": 349,
+              "variableFeeCents": 348,
+              "chargedCents": 397
+            }
+          ]
+        },
+        "newEvaluation": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 566,
+          "lateFeeCents": 0,
+          "contractId": "paypal-static-micropayments-b",
+          "contractVersion": "1.0.0",
+          "scenarioId": "paypal-mixed-basket",
+          "currency": "USD",
+          "totalCents": 566,
+          "trace": [
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-1",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-2",
+              "amountCents": 100,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 5,
+              "chargedCents": 14
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-3",
+              "amountCents": 431,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 22,
+              "chargedCents": 31
+            },
+            {
+              "ruleType": "transactionFee",
+              "transactionId": "mixed-basket-purchase-4",
+              "amountCents": 9970,
+              "fixedCents": 9,
+              "rateBps": 499,
+              "variableFeeCents": 498,
+              "chargedCents": 507
+            }
+          ]
+        },
+        "deltaCents": 1,
+        "deltaByCategoryCents": {
+          "monthlyFeeCents": 0,
+          "transactionFeeCents": 1,
+          "lateFeeCents": 0
+        }
+      }
+    }
+  ],
+  "minimizationBudget": {
+    "maxChecks": 200,
+    "checksPerformed": 200,
+    "budgetExhausted": true,
+    "terminationReason": "budget-exhausted"
+  },
+  "calculationPolicy": {
+    "currency": "USD",
+    "moneyUnit": "integer USD cents",
+    "rateUnit": "integer basis points; 10000 bps = 100 percent",
+    "rounding": "round half up separately for each transaction before adding its fixed fee",
+    "dates": "Gregorian calendar days; early payments have zero late days",
+    "delta": "new contract total minus old contract total",
+    "effectiveDate": "descriptive contract metadata; does not restrict counterfactual scenarios"
+  },
+  "limitations": [
+    "Contracts and transactions are synthetic financial experiments.",
+    "A reduced witness is not a proof of a globally minimal counterexample.",
+    "Verification checks the submitted calculations and constraints, not authenticated historical search execution.",
+    "This JSON evidence has no digital signature, tamper-proof guarantee or financial regulatory certification.",
+    "Search coverage.complete describes visited parameter tuples, not successful financial evaluation of every scenario."
+  ]
+}

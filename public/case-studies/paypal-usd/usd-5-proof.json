@@ -1,0 +1,207 @@
+{
+  "proofSchemaVersion": 1,
+  "engineVersion": "stage3-v1",
+  "minimizerVersion": "stage4b-v1",
+  "oldContract": {
+    "schemaVersion": 1,
+    "id": "paypal-checkout-a",
+    "name": "Plan A model — PayPal Checkout",
+    "version": "1.0.0",
+    "currency": "USD",
+    "billingCycle": "calendar-month",
+    "effectiveDate": "2026-10-27",
+    "rules": {
+      "transactionFee": {
+        "fixedCents": 49,
+        "rateBps": 349
+      }
+    }
+  },
+  "newContract": {
+    "schemaVersion": 1,
+    "id": "paypal-static-micropayments-b",
+    "name": "Plan B model — Static Micropayments",
+    "version": "1.0.0",
+    "currency": "USD",
+    "billingCycle": "calendar-month",
+    "effectiveDate": "2026-10-27",
+    "rules": {
+      "transactionFee": {
+        "fixedCents": 9,
+        "rateBps": 499
+      }
+    }
+  },
+  "witnessSource": {
+    "candidateId": "base",
+    "sequence": 0,
+    "source": "base",
+    "parameters": {
+      "purchaseCount": 1,
+      "purchaseAmountCents": 500,
+      "lateDays": 0
+    }
+  },
+  "searchOptions": {
+    "seed": 20261027,
+    "maxEvaluations": 1,
+    "maxResults": 1,
+    "purchaseCountMin": 1,
+    "purchaseCountMax": 1,
+    "purchaseAmountCentsMin": 500,
+    "purchaseAmountCentsMax": 500,
+    "lateDaysMin": 0,
+    "lateDaysMax": 0
+  },
+  "originalScenario": {
+    "schemaVersion": 1,
+    "id": "paypal-usd-5",
+    "billingMonth": "2026-10",
+    "transactions": [
+      {
+        "id": "usd-5-purchase-1",
+        "occurredOn": "2026-10-15",
+        "amountCents": 500,
+        "kind": "purchase"
+      }
+    ],
+    "paymentEvents": []
+  },
+  "minimizedScenario": {
+    "schemaVersion": 1,
+    "id": "paypal-usd-5",
+    "billingMonth": "2026-10",
+    "transactions": [
+      {
+        "id": "usd-5-purchase-1",
+        "occurredOn": "2026-10-15",
+        "amountCents": 500,
+        "kind": "purchase"
+      }
+    ],
+    "paymentEvents": []
+  },
+  "originalComparison": {
+    "oldEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 66,
+      "lateFeeCents": 0,
+      "contractId": "paypal-checkout-a",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-usd-5",
+      "currency": "USD",
+      "totalCents": 66,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "usd-5-purchase-1",
+          "amountCents": 500,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 17,
+          "chargedCents": 66
+        }
+      ]
+    },
+    "newEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 34,
+      "lateFeeCents": 0,
+      "contractId": "paypal-static-micropayments-b",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-usd-5",
+      "currency": "USD",
+      "totalCents": 34,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "usd-5-purchase-1",
+          "amountCents": 500,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 25,
+          "chargedCents": 34
+        }
+      ]
+    },
+    "deltaCents": -32,
+    "deltaByCategoryCents": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": -32,
+      "lateFeeCents": 0
+    }
+  },
+  "minimizedComparison": {
+    "oldEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 66,
+      "lateFeeCents": 0,
+      "contractId": "paypal-checkout-a",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-usd-5",
+      "currency": "USD",
+      "totalCents": 66,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "usd-5-purchase-1",
+          "amountCents": 500,
+          "fixedCents": 49,
+          "rateBps": 349,
+          "variableFeeCents": 17,
+          "chargedCents": 66
+        }
+      ]
+    },
+    "newEvaluation": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": 34,
+      "lateFeeCents": 0,
+      "contractId": "paypal-static-micropayments-b",
+      "contractVersion": "1.0.0",
+      "scenarioId": "paypal-usd-5",
+      "currency": "USD",
+      "totalCents": 34,
+      "trace": [
+        {
+          "ruleType": "transactionFee",
+          "transactionId": "usd-5-purchase-1",
+          "amountCents": 500,
+          "fixedCents": 9,
+          "rateBps": 499,
+          "variableFeeCents": 25,
+          "chargedCents": 34
+        }
+      ]
+    },
+    "deltaCents": -32,
+    "deltaByCategoryCents": {
+      "monthlyFeeCents": 0,
+      "transactionFeeCents": -32,
+      "lateFeeCents": 0
+    }
+  },
+  "reductionSteps": [],
+  "minimizationBudget": {
+    "maxChecks": 200,
+    "checksPerformed": 1,
+    "budgetExhausted": false,
+    "terminationReason": "strategy-complete"
+  },
+  "calculationPolicy": {
+    "currency": "USD",
+    "moneyUnit": "integer USD cents",
+    "rateUnit": "integer basis points; 10000 bps = 100 percent",
+    "rounding": "round half up separately for each transaction before adding its fixed fee",
+    "dates": "Gregorian calendar days; early payments have zero late days",
+    "delta": "new contract total minus old contract total",
+    "effectiveDate": "descriptive contract metadata; does not restrict counterfactual scenarios"
+  },
+  "limitations": [
+    "Contracts and transactions are synthetic financial experiments.",
+    "A reduced witness is not a proof of a globally minimal counterexample.",
+    "Verification checks the submitted calculations and constraints, not authenticated historical search execution.",
+    "This JSON evidence has no digital signature, tamper-proof guarantee or financial regulatory certification.",
+    "Search coverage.complete describes visited parameter tuples, not successful financial evaluation of every scenario."
+  ]
+}

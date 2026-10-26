@@ -28,6 +28,8 @@ Structural rule comparison, scenario editing, rule-category additions/removals, 
 
 ## Static frontend
 
+Published-rate case studies are isolated from the original synthetic experiment registry. The PayPal USD case has a separate Vite HTML entry at `case-studies/paypal-usd/index.html`, React presentation under `src/features/paypal-case-study/`, and deterministic inputs/builders under `src/case-studies/paypal-usd/`. It reuses the unchanged financial, search, minimization and proof APIs. A dated structured source record stays outside strict Contract/Scenario/Proof schemas. Independently calculated expectations are checked against official engine results; errors are visible and never become zero fees. A one-shot generation command produces auditable static data, reports and an SVG in `public/case-studies/paypal-usd/`, also checked for drift in tests. Both HTML entries share the existing build, base path and Pages deployment; there is no runtime rate fetch or additional backend. See [PayPal case methodology](case-studies/PAYPAL_USD.md).
+
 Vite serves the application during local development and produces static HTML, CSS, and JavaScript assets for production. The production application runs in the browser and does not require an application server.
 
 React components are responsible for presentation and the shared workspace's selection, applied-contract, text-draft, search-report, witness-selection, minimization-control, current/imported proof verification, and view state. Native FileReader and Blob downloads form the local file boundary. Local CSS provides layout, responsive behavior, and the visual design. Fonts and visual assets are local or provided by the operating system.

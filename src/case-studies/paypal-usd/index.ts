@@ -1,0 +1,5 @@
+export { planA, planB, paypalScenarios, paypalSource } from './fixtures'
+export { buildPayPalCaseStudy, paypalUsd, paypalDelta } from './study'
+export type { PayPalCaseStudy, PayPalResultRow, PayPalChartPoint } from './study'
+export { createPayPalEvidence } from './evidence'
+export { renderPayPalFeeCurve } from './curve'

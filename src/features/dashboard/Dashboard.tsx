@@ -45,6 +45,17 @@ export default function Dashboard({ workspace }: { workspace: WorkspaceControlle
         </div>
         <span className="status-pill">Computed locally</span>
       </div>
+      <section className="panel" aria-labelledby="public-rate-case-title">
+        <p className="eyebrow">Published-rate case study · USD</p>
+        <h2 id="public-rate-case-title">PayPal: two published plans</h2>
+        <p className="dashboard-intro">
+          Compare Checkout and a Static Micropayments rate model, with dated sources,
+          independent expected fees and portable evidence. This is a plan A/B comparison.
+        </p>
+        <a href={`${import.meta.env.BASE_URL}case-studies/paypal-usd/`} target="_blank" rel="noopener noreferrer">
+          Read the PayPal USD case study (opens in a new tab)
+        </a>
+      </section>
       <section className="panel experiment-section" aria-labelledby="experiment-title">
         <ExperimentSelector workspace={workspace} />
         <div className="contract-grid">
