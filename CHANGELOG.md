@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add an isolated PayPal US USD published-plan case study with dated sources, explicit Static/Dynamic eligibility, independent exact expectations, an engine-derived fee curve, and reproducible JSON/Markdown evidence. The original three synthetic experiments and financial algorithms are unchanged.
+- Use local Blob exports for case-study downloads, including fresh official proof verification, visible export failures and static file fallbacks for modified clicks.
 - Update the jsdom-only indirect dependency `undici` from 8.11.2 to the compatible 8.12.3 security patch; runtime dependencies are unchanged.
 
 ## v1.0.0 — 2026-10-15

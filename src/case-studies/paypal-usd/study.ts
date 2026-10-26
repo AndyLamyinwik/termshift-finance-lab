@@ -1,7 +1,7 @@
 import { compareContracts } from '../../engine'
 import type { Comparison } from '../../engine'
-import type { Scenario } from '../../models'
-import { paypalScenarios, planA, planB } from './fixtures'
+import type { Contract, Scenario } from '../../models'
+import { paypalScenarios, paypalSource, planA, planB } from './fixtures'
 
 export interface PayPalResultRow {
   id: string
@@ -20,6 +20,27 @@ export interface PayPalChartPoint {
 export interface PayPalCaseStudy {
   rows: PayPalResultRow[]
   chartPoints: PayPalChartPoint[]
+}
+
+export interface PayPalResultsDocument extends PayPalCaseStudy {
+  caseStudyVersion: 1
+  source: typeof paypalSource
+  labels: { planA: 'Checkout'; planB: 'Static Micropayments model'; delta: 'B minus A' }
+  schemaMapping: { oldContract: 'planA'; newContract: 'planB' }
+  contracts: { planA: Contract; planB: Contract }
+}
+
+/** One document shape for reproducible static files and offline browser downloads. */
+export function buildPayPalResultsDocument(study: PayPalCaseStudy = buildPayPalCaseStudy()): PayPalResultsDocument {
+  return {
+    caseStudyVersion: 1,
+    source: structuredClone(paypalSource),
+    labels: { planA: 'Checkout', planB: 'Static Micropayments model', delta: 'B minus A' },
+    schemaMapping: { oldContract: 'planA', newContract: 'planB' },
+    contracts: { planA: structuredClone(planA), planB: structuredClone(planB) },
+    rows: study.rows,
+    chartPoints: study.chartPoints,
+  }
 }
 
 /** Presentation formatting only; monetary results remain integer cents. */

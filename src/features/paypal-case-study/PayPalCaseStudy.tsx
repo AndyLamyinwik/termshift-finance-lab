@@ -1,12 +1,42 @@
-import { buildPayPalCaseStudy } from '../../case-studies/paypal-usd'
+import { useState } from 'react'
+import type { MouseEvent } from 'react'
+import { buildPayPalCaseStudy, buildPayPalResultsDocument, createPayPalEvidence, renderPayPalFeeCurve } from '../../case-studies/paypal-usd'
 import { paypalSource } from '../../case-studies/paypal-usd/fixtures'
 import { formatDeltaCents, formatUsdCents } from '../dashboard/format'
+import { downloadTextFile } from '../portable-evidence/portable'
+import type { TextDownload } from '../portable-evidence/portable'
 
 const base = import.meta.env.BASE_URL
 const assets = `${base}case-studies/paypal-usd/`
 
 function StudyContent({ study }: { study: ReturnType<typeof buildPayPalCaseStudy> }) {
+  const [exportError, setExportError] = useState('')
+
+  function download(event: MouseEvent<HTMLAnchorElement>, payload: () => TextDownload) {
+    // Keep static file URLs usable for modified clicks and link context menus.
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    try {
+      downloadTextFile(payload())
+      setExportError('')
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : 'The local export could not complete.')
+    }
+  }
+
+  function evidence(caseId: string, format: 'json' | 'markdown'): TextDownload {
+    // Recreate from the real search and independently verify before every export.
+    const result = createPayPalEvidence(caseId)
+    return format === 'json'
+      ? { text: JSON.stringify(result.proof, null, 2), fileName: `${caseId}-proof.json`, mimeType: 'application/json;charset=utf-8' }
+      : { text: result.markdown, fileName: `${caseId}-report.md`, mimeType: 'text/markdown;charset=utf-8' }
+  }
+
   return <>
+    {exportError && <section className="case-panel case-error" role="alert">
+      <h2>Unable to download</h2>
+      <p>{exportError} Your comparison results are unchanged. Try the download again.</p>
+    </section>}
     <section className="case-panel case-scope" aria-labelledby="case-scope-title">
       <p className="case-eyebrow">Scope before results</p>
       <h2 id="case-scope-title">One market, two fee schedules</h2>
@@ -46,7 +76,9 @@ function StudyContent({ study }: { study: ReturnType<typeof buildPayPalCaseStudy
         <figcaption>Fees come from the TermShift engine. Lines connect sampled amounts; the table and evidence contain exact rounded results.
           The real-valued fee formulas intersect near $26.67, but cent rounding creates equal-fee cases around that amount.</figcaption>
       </figure>
-      <a className="case-text-link" href={`${assets}fee-curve.svg`} download>Download fee curve (SVG)</a>
+      <a className="case-text-link" href={`${assets}fee-curve.svg`} download onClick={event => download(event, () => ({
+        text: renderPayPalFeeCurve(study.chartPoints), fileName: 'paypal-usd-fee-curve.svg', mimeType: 'image/svg+xml;charset=utf-8',
+      }))}>Download fee curve (SVG)</a>
     </section>
 
     <section className="case-panel" aria-labelledby="case-results-title">
@@ -70,11 +102,13 @@ function StudyContent({ study }: { study: ReturnType<typeof buildPayPalCaseStudy
             <td>{formatDeltaCents(row.comparison.deltaCents)}</td><td><span className="case-match">Match</span></td>
             <td>{row.comparison.deltaCents === 0
               ? <span>Equal fees; no nonzero witness</span>
-              : <span className="case-evidence-links"><a href={`${assets}${row.id}-proof.json`} download aria-label={`Download JSON for ${row.label}`}>JSON</a><a href={`${assets}${row.id}-report.md`} download aria-label={`Download Markdown for ${row.label}`}>Markdown</a></span>}</td>
+              : <span className="case-evidence-links"><a href={`${assets}${row.id}-proof.json`} download aria-label={`Download JSON for ${row.label}`} onClick={event => download(event, () => evidence(row.id, 'json'))}>JSON</a><a href={`${assets}${row.id}-report.md`} download aria-label={`Download Markdown for ${row.label}`} onClick={event => download(event, () => evidence(row.id, 'markdown'))}>Markdown</a></span>}</td>
           </tr>)}</tbody>
         </table>
       </div>
-      <p><a href={`${assets}results.json`} download>Download all scenarios and comparison results (JSON)</a></p>
+      <p><a href={`${assets}results.json`} download onClick={event => download(event, () => ({
+        text: JSON.stringify(buildPayPalResultsDocument(study), null, 2), fileName: 'paypal-usd-results.json', mimeType: 'application/json;charset=utf-8',
+      }))}>Download all scenarios and comparison results (JSON)</a></p>
       <div className="case-insight-grid">
         <article><h3>Fixed fees matter at small amounts</h3><p>At $10, A costs $0.84 and B costs $0.59. At $30, A costs $1.54 and B costs $1.59 under the stated model.</p></article>
         <article><h3>Transaction count matters too</h3><p>Ten $1 transactions apply each plan’s fixed fee ten times. Their total fees differ from one $10 transaction, despite equal gross receipts.</p></article>
@@ -95,7 +129,7 @@ function StudyContent({ study }: { study: ReturnType<typeof buildPayPalCaseStudy
         These field names do not imply chronological changes.</p>
       <p>Verification confirms calculation consistency, not authentic authorship, account eligibility, actual PayPal deductions, or a global optimum.
         The recorded search uses a finite budget; scenario-pinned reductions do not claim a globally minimal witness.</p>
-      <p className="case-muted">Files are static local evidence, not live PayPal data. Import remains limited to 5 MiB and does not replace working contracts.</p>
+      <p className="case-muted">Downloads are generated locally from the same fixed case inputs; no live PayPal data is requested. Import remains limited to 5 MiB and does not replace working contracts.</p>
     </section>
 
     <section className="case-panel" aria-labelledby="case-source-title">
@@ -107,7 +141,9 @@ function StudyContent({ study }: { study: ReturnType<typeof buildPayPalCaseStudy
         <div><dt>Fee page last updated</dt><dd>{paypalSource.feePageUpdatedOn}</dd></div>
         <div><dt>Financial units</dt><dd>Integer USD cents and basis points</dd></div>
       </dl>
-      <p><a href={paypalSource.url} target="_blank" rel="noreferrer">PayPal US merchant fee table</a> · <a href={paypalSource.termsUrl} target="_blank" rel="noreferrer">PayPal US User Agreement: Micropayments</a> · <a href={`${assets}source-capture.json`} download>Download source record</a></p>
+      <p><a href={paypalSource.url} target="_blank" rel="noreferrer">PayPal US merchant fee table</a> · <a href={paypalSource.termsUrl} target="_blank" rel="noreferrer">PayPal US User Agreement: Micropayments</a> · <a href={`${assets}source-capture.json`} download onClick={event => download(event, () => ({
+        text: JSON.stringify(paypalSource, null, 2), fileName: 'paypal-usd-source-capture.json', mimeType: 'application/json;charset=utf-8',
+      }))}>Download source record</a></p>
       <p><strong>Rounding is a model assumption:</strong> TermShift rounds the percentage component half up for each transaction before adding its fixed fee.
         The cited sources have not been used to confirm that PayPal applies this identical rounding policy. Model totals are not verified real-account charges.</p>
       <p>Fixture dates and contract version numbers identify this reproducible model snapshot; they do not establish a PayPal product launch or fee-change date.</p>

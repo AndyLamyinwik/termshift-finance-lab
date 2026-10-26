@@ -80,6 +80,8 @@ To verify a proof:
 
 The separate source record does not add metadata to the strict proof schema. **Verified** means calculation consistency, not provider identity, authenticated provenance, account eligibility, actual billing or regulatory approval. JSON files remain subject to the existing 5 MiB import limit; Markdown is a reading aid. This is independent educational software, not a PayPal endorsement or financial advice.
 
+Ordinary download clicks create local Blob files using the lab's existing download boundary. Proof exports recreate and verify their evidence before saving; graph, source and full-results exports also run locally without fetching a remote file. Modified clicks retain the static addresses. An export failure is shown explicitly and can be retried. Browser testing exposed static-link download events not completing in the embedded browser, while the same browser's existing Blob exports worked; a failing click regression was added before applying this repair.
+
 For developers, use Node.js 24 and the existing locked npm dependencies:
 
 ```sh

@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as studyApi from '../../case-studies/paypal-usd'
 import { paypalScenarios, paypalSource } from '../../case-studies/paypal-usd/fixtures'
 import PayPalCaseStudy from './PayPalCaseStudy'
 import App from '../../App'
+import * as portable from '../portable-evidence/portable'
+import { verifyImpactProof } from '../../proof'
 
 afterEach(() => {
   cleanup()
@@ -121,5 +123,107 @@ describe('PayPal published-plan case-study page', () => {
     expect(screen.queryByText('Match')).toBeNull()
     expect(screen.queryByText('$0.00')).toBeNull()
     expect(screen.queryByRole('link', { name: /Download JSON/ })).toBeNull()
+  })
+
+  it('downloads complete freshly verified proof JSON through the native Blob helper', () => {
+    const download = vi.spyOn(portable, 'downloadTextFile').mockImplementation(() => {})
+    render(<PayPalCaseStudy />)
+    fireEvent.click(screen.getByRole('link', { name: 'Download JSON for 1 × USD 10.00' }))
+    expect(download).toHaveBeenCalledTimes(1)
+    const payload = download.mock.calls[0]![0]
+    expect(payload.fileName).toBe('usd-10-proof.json')
+    expect(payload.mimeType).toContain('application/json')
+    const proof: unknown = JSON.parse(payload.text)
+    const verified = verifyImpactProof(proof)
+    expect(verified.success).toBe(true)
+    if (!verified.success) throw new Error('Downloaded proof failed verification')
+    expect(verified.data.proof.originalComparison.deltaCents).toBe(-25)
+  })
+
+  it('downloads the verified readable A/B Markdown report through the native Blob helper', () => {
+    const download = vi.spyOn(portable, 'downloadTextFile').mockImplementation(() => {})
+    render(<PayPalCaseStudy />)
+    fireEvent.click(screen.getByRole('link', { name: 'Download Markdown for 1 × USD 30.00' }))
+    expect(download).toHaveBeenCalledTimes(1)
+    const payload = download.mock.calls[0]![0]
+    expect(payload.fileName).toBe('usd-30-report.md')
+    expect(payload.mimeType).toContain('text/markdown')
+    expect(payload.text).toContain('Plan A')
+    expect(payload.text).toContain('Plan B')
+    expect(payload.text).toContain('+$0.05')
+    expect(payload.text).toContain('not a historical price change')
+  })
+
+  it('downloads curve, source and complete results as local payloads without a fetch', () => {
+    const download = vi.spyOn(portable, 'downloadTextFile').mockImplementation(() => {})
+    const fetch = vi.fn()
+    vi.stubGlobal('fetch', fetch)
+    render(<PayPalCaseStudy />)
+    fireEvent.click(screen.getByRole('link', { name: 'Download fee curve (SVG)' }))
+    expect(download).toHaveBeenCalledTimes(1)
+    const curve = download.mock.calls[0]![0]
+    expect(curve.mimeType).toContain('image/svg+xml')
+    expect(curve.text).toContain('<svg')
+    expect(curve.text).toContain('Plan A')
+    expect(curve.text).toContain('Plan B')
+    fireEvent.click(screen.getByRole('link', { name: 'Download source record' }))
+    expect(download).toHaveBeenCalledTimes(2)
+    expect(JSON.parse(download.mock.calls[1]![0].text)).toEqual(paypalSource)
+    fireEvent.click(screen.getByRole('link', { name: 'Download all scenarios and comparison results (JSON)' }))
+    expect(download).toHaveBeenCalledTimes(3)
+    const results = JSON.parse(download.mock.calls[2]![0].text) as ReturnType<typeof studyApi.buildPayPalResultsDocument>
+    expect(results.rows).toHaveLength(paypalScenarios.length)
+    expect(results.source).toEqual(paypalSource)
+    expect(results.contracts.planA.rules.transactionFee).toEqual({ rateBps: 349, fixedCents: 49 })
+    expect(results.contracts.planB.rules.transactionFee).toEqual({ rateBps: 499, fixedCents: 9 })
+    expect(results.rows.find(row => row.id === 'usd-10')?.comparison.deltaCents).toBe(-25)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('does not download evidence when fresh proof creation or verification fails', () => {
+    const download = vi.spyOn(portable, 'downloadTextFile').mockImplementation(() => {})
+    vi.spyOn(studyApi, 'createPayPalEvidence').mockImplementation(() => { throw new Error('Proof verification failed') })
+    render(<PayPalCaseStudy />)
+    fireEvent.click(screen.getByRole('link', { name: 'Download JSON for 1 × USD 10.00' }))
+    expect(download).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert').textContent).toContain('Proof verification failed')
+    expect(screen.getByRole('table')).toBeTruthy()
+  })
+
+  it('shows export failure without a fake download and lets a user retry', () => {
+    const download = vi.spyOn(portable, 'downloadTextFile').mockImplementationOnce(() => { throw new Error('Native download unavailable') })
+      .mockImplementation(() => {})
+    render(<PayPalCaseStudy />)
+    const link = screen.getByRole('link', { name: 'Download JSON for 1 × USD 10.00' })
+    fireEvent.click(link)
+    expect(screen.getByRole('alert').textContent).toContain('Unable to download')
+    expect(screen.getByRole('table')).toBeTruthy()
+    fireEvent.click(link)
+    expect(download).toHaveBeenCalledTimes(2)
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+
+  it('retains normal modified-click behavior and static fallback addresses', () => {
+    const download = vi.spyOn(portable, 'downloadTextFile').mockImplementation(() => {})
+    render(<PayPalCaseStudy />)
+    const link = screen.getByRole('link', { name: 'Download JSON for 1 × USD 10.00' })
+    expect(link.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}case-studies/paypal-usd/usd-10-proof.json`)
+    // Inspect default behavior after React handles the click, then prevent jsdom's
+    // unimplemented document navigation without changing the component's handler.
+    const clicks: boolean[] = []
+    const preventDocumentNavigation = (event: MouseEvent) => {
+      clicks.push(event.defaultPrevented)
+      event.preventDefault()
+    }
+    window.addEventListener('click', preventDocumentNavigation)
+    try {
+      for (const modifiers of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
+        fireEvent.click(link, modifiers)
+      }
+    } finally {
+      window.removeEventListener('click', preventDocumentNavigation)
+    }
+    expect(clicks).toEqual([false, false, false, false, false])
+    expect(download).not.toHaveBeenCalled()
   })
 })

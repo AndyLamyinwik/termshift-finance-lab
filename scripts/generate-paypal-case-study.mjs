@@ -12,21 +12,13 @@ const server = await createServer({
   appType: 'custom',
 })
 try {
-  const { buildPayPalCaseStudy, createPayPalEvidence, paypalSource, planA, planB, paypalUsd, paypalDelta, renderPayPalFeeCurve } =
+  const { buildPayPalCaseStudy, buildPayPalResultsDocument, createPayPalEvidence, paypalSource, paypalUsd, paypalDelta, renderPayPalFeeCurve } =
     await server.ssrLoadModule('/src/case-studies/paypal-usd/index.ts')
   const study = buildPayPalCaseStudy()
   await mkdir(output, { recursive: true })
   const json = value => `${JSON.stringify(value, null, 2)}\n`
   await writeFile(resolve(output, 'source-capture.json'), json(paypalSource))
-  await writeFile(resolve(output, 'results.json'), json({
-    caseStudyVersion: 1,
-    source: paypalSource,
-    labels: { planA: 'Checkout', planB: 'Static Micropayments model', delta: 'B minus A' },
-    schemaMapping: { oldContract: 'planA', newContract: 'planB' },
-    contracts: { planA, planB },
-    rows: study.rows,
-    chartPoints: study.chartPoints,
-  }))
+  await writeFile(resolve(output, 'results.json'), json(buildPayPalResultsDocument(study)))
   await writeFile(resolve(output, 'fee-curve.svg'), renderPayPalFeeCurve(study.chartPoints))
   const summary = [
     '# PayPal US domestic USD: published-plan comparison', '',
