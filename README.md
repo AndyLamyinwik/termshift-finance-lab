@@ -6,6 +6,8 @@
 
 **Language / 語言 / 语言:** [English](#english) · [繁體中文](#zh-hant) · [简体中文](#zh-hans)
 
+📘 **[下载简体中文图文使用说明书（Word）](docs/TermShift-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E%E4%B9%A6.docx?raw=1)**
+
 <a id="english"></a>
 
 ## English
@@ -246,6 +248,7 @@ TermShift 是一个开源的金融合同模拟与反例探索工具。你可以�
 ### 使用入口
 
 - **[打开在线实验室（Live Demo）](https://andylamyinwik.github.io/termshift-finance-lab/)**：直接在浏览器使用，无需安装。
+- **[下载简体中文图文使用说明书（Word）](docs/TermShift-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E%E4%B9%A6.docx?raw=1)**：从入门到案例操作，按步骤配图讲解。
 - **[正式版本与发布说明](https://github.com/AndyLamyinwik/termshift-finance-lab/releases)**：查看版本与功能记录。
 - **[本地安装与开发方式](#run-locally)**：适合想自行运行或参与开发的人。
 
